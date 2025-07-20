@@ -118,17 +118,15 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Enable RLS
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- ⚠️ Important: Start with RLS disabled for initial setup
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 
--- Basic policies
-CREATE POLICY "Users can read own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
-  
-CREATE POLICY "Admins can read all users" ON users
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-  );
+-- After everything works, you can enable simple RLS policies:
+-- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "authenticated_read_own" ON users
+--   FOR SELECT USING (auth.uid() = id);
+
+-- ⚠️ See SQL_FIXES.sql for proper RLS setup to avoid infinite recursion
 ```
 
 ## Deployment

@@ -140,7 +140,35 @@ WHERE email = 'your-admin-email';
    ALTER TABLE users ENABLE ROW LEVEL SECURITY;
    ```
 
-### Issue 4: Email confirmation required
+### Issue 4: RLS Infinite Recursion ⚠️ **URGENT**
+**Symptoms**:
+- Error: "infinite recursion detected in policy for relation 'users'"
+- Can't fetch user data from database
+- Login fails after authentication
+
+**Root Cause**: RLS policies reference the same table they protect, creating circular dependency.
+
+**Quick Fix** (Immediate):
+```sql
+-- Disable RLS temporarily
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+```
+
+**Permanent Fix** (Recommended):
+```sql
+-- 1. Drop problematic policies
+DROP POLICY IF EXISTS "Users can read own profile" ON users;
+DROP POLICY IF EXISTS "Admins can read all users" ON users;
+
+-- 2. Create safe policies
+CREATE POLICY "authenticated_read_own" ON users
+  FOR SELECT USING (auth.uid() = id);
+
+-- 3. Re-enable RLS
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+```
+
+### Issue 5: Email confirmation required
 **Symptoms**:
 - Setup admin succeeds but user not confirmed
 - Can't login until email confirmed
