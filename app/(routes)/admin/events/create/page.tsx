@@ -1,11 +1,10 @@
-import { CreateEventForm } from "@/app/components/admin/create-event-form"; 
+import { EventForm } from "@/app/components/admin/event-form";
 
 export default function CreateEventPage() {
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Create New Event</h1>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <CreateEventForm />
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white p-8 rounded-lg shadow-md">
+        <EventForm mode="create" />
       </div>
     </div>
   );
