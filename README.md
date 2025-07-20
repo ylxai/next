@@ -59,10 +59,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 2. Buat tabel `users` dengan kolom:
    - `id` (UUID, primary key)
    - `email` (text)
+   - `full_name` (text)
    - `role` (text, default: 'user')
 3. Setup Row Level Security (RLS)
 
-### 4. Run Development Server
+### 4. Membuat Admin Pertama
+Setelah setup Supabase, buat akun admin:
+- Akses `http://localhost:3000/setup-admin`
+- Isi form setup admin
+- Atau lihat panduan lengkap di [ADMIN_SETUP_GUIDE.md](./ADMIN_SETUP_GUIDE.md)
+
+### 5. Run Development Server
 ```bash
 npm run dev
 ```
@@ -103,11 +110,25 @@ app/
 ### Users Table
 ```sql
 CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
+  full_name TEXT,
   role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'user')),
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Enable RLS
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Basic policies
+CREATE POLICY "Users can read own profile" ON users
+  FOR SELECT USING (auth.uid() = id);
+  
+CREATE POLICY "Admins can read all users" ON users
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+  );
 ```
 
 ## Deployment

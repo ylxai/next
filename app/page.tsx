@@ -22,6 +22,12 @@ export default function HomePage() {
               Admin Dashboard
             </Button>
           </Link>
+          
+          <Link href="/setup-admin" className="block">
+            <Button className="w-full" variant="secondary">
+              Setup Admin (Pertama Kali)
+            </Button>
+          </Link>
         </div>
         
         <div className="text-center text-sm text-gray-500">
