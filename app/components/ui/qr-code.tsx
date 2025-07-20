@@ -51,22 +51,31 @@ export function QRCode({
 
         if (response.ok) {
           const result = await response.json();
-          if (result.success) {
+          if (result.success && result.data) {
             setQrCodeData(result.data);
+          } else {
+            console.warn('QR code generation failed:', result);
           }
+        } else {
+          console.warn('QR code API response not ok:', response.status);
         }
       } catch (error) {
         console.error('Failed to load QR code:', error);
+        // Don't throw error, just log it
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadQRCode();
+    // Add a small delay to prevent immediate API calls on component mount
+    const timer = setTimeout(loadQRCode, 100);
+    return () => clearTimeout(timer);
   }, [text, size]);
 
   // Download QR code
   const downloadQRCode = async () => {
+    if (!text || isDownloading) return;
+    
     setIsDownloading(true);
     try {
       const response = await fetch(`/api/qr?text=${encodeURIComponent(text)}&size=${size * 2}`);
@@ -80,6 +89,9 @@ export function QRCode({
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+      } else {
+        console.warn('Download failed:', response.status);
+        alert('Gagal mendownload QR code. Silakan coba lagi.');
       }
     } catch (error) {
       console.error('Error downloading QR code:', error);
@@ -91,12 +103,30 @@ export function QRCode({
 
   // Copy text to clipboard
   const copyToClipboard = async () => {
+    if (!text || !navigator.clipboard) {
+      console.warn('Clipboard not available');
+      return;
+    }
+
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error('Failed to copy:', error);
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (fallbackError) {
+        console.error('Fallback copy failed:', fallbackError);
+      }
     }
   };
 
