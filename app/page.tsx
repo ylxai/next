@@ -28,6 +28,12 @@ export default function HomePage() {
               Setup Admin (Pertama Kali)
             </Button>
           </Link>
+          
+          <Link href="/debug-auth" className="block">
+            <Button className="w-full" variant="ghost" size="sm">
+              🔍 Debug Auth (Developer)
+            </Button>
+          </Link>
         </div>
         
         <div className="text-center text-sm text-gray-500">

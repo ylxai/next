@@ -28,14 +28,12 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  // Refresh session if expired - required for Server Components
-  await supabase.auth.getUser();
-
-  const { data: { session } } = await supabase.auth.getSession();
+  // Get authenticated user - more secure than getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
   if (req.nextUrl.pathname.startsWith('/admin')) {
-    // Jika tidak ada session, redirect ke login
-    if (!session) {
+    // Jika tidak ada user atau error, redirect ke login
+    if (userError || !user) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
     
@@ -43,7 +41,7 @@ export async function middleware(req: NextRequest) {
     const { data: userData, error } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
     
     // Jika bukan admin atau error, redirect ke login
