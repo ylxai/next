@@ -32,8 +32,11 @@ export function CreateEventForm() {
       
       const data = await response.json();
       router.push(`/admin/events/${data.id}`);
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message });
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Terjadi kesalahan' 
+      });
       setIsLoading(false);
     }
   };

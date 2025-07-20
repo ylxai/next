@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Photo Studio Web Application
 
-## Getting Started
+Aplikasi web untuk manajemen foto studio professional dengan fitur admin dashboard, manajemen klien, dan pengelolaan event fotografi.
 
-First, run the development server:
+## ✅ Issues Yang Telah Diperbaiki
 
+### 1. **Deprecated Supabase Auth Helpers**
+- ❌ **Sebelum**: Menggunakan `@supabase/auth-helpers-nextjs` (deprecated)
+- ✅ **Sesudah**: Menggunakan `@supabase/ssr` (modern)
+
+### 2. **TypeScript Errors**
+- ❌ **Sebelum**: Penggunaan `any` type pada error handling
+- ✅ **Sesudah**: Proper error handling dengan type safety
+
+### 3. **Missing Dependencies**
+- ❌ **Sebelum**: Dependencies tidak terinstall
+- ✅ **Sesudah**: Semua dependencies terinstall dan terkonfigurasi
+
+### 4. **Missing Main Page**
+- ❌ **Sebelum**: Tidak ada `app/page.tsx`
+- ✅ **Sesudah**: Homepage dengan navigasi yang proper
+
+### 5. **Path Resolution Issues**
+- ❌ **Sebelum**: Konflik antara `/app/components` dan `/components`
+- ✅ **Sesudah**: Path aliasing yang konsisten
+
+## Fitur
+
+- 🔐 **Authentication**: Login dengan Supabase Auth
+- 👥 **Admin Dashboard**: Panel admin untuk manajemen
+- 📸 **Event Management**: Manajemen event fotografi
+- 👤 **Client Management**: Manajemen data klien
+- 🎨 **Modern UI**: Menggunakan Tailwind CSS + Shadcn/ui
+
+## Tech Stack
+
+- **Frontend**: Next.js 15.4.2 + React 19.1.0
+- **Styling**: Tailwind CSS + Shadcn/ui
+- **Backend**: Supabase
+- **Language**: TypeScript
+- **Form Handling**: React Hook Form + Zod
+
+## Setup
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Buat file `.env.local` dan tambahkan:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Supabase Setup
+1. Buat project di [Supabase](https://supabase.com)
+2. Buat tabel `users` dengan kolom:
+   - `id` (UUID, primary key)
+   - `email` (text)
+   - `role` (text, default: 'user')
+3. Setup Row Level Security (RLS)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Run Development Server
+```bash
+npm run dev
+```
 
-## Learn More
+Buka [http://localhost:3000](http://localhost:3000) di browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+├── (routes)/           # Route groups
+│   ├── admin/         # Admin pages
+│   ├── event/         # Event pages
+│   └── login/         # Login page
+├── api/               # API routes
+├── components/        # React components
+├── lib/              # Utilities
+│   └── supabase/     # Supabase config
+└── globals.css       # Global styles
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Authentication Flow
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. User mengakses halaman login
+2. Kredensial diverifikasi via Supabase Auth
+3. Middleware memeriksa role user untuk akses admin
+4. Redirect ke dashboard jika berhasil
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'user')),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+## Deployment
+
+1. Build aplikasi: `npm run build`
+2. Deploy ke platform pilihan (Vercel, Netlify, dll.)
+3. Set environment variables di platform deployment
+4. Konfigurasikan domain di Supabase Auth settings
+
+## Troubleshooting
+
+### Build Error: Missing Environment Variables
+Pastikan file `.env.local` sudah dibuat dengan variabel Supabase yang benar.
+
+### CSS Error: Unknown Utility Class
+Jika ada error Tailwind CSS, pastikan `app/globals.css` sudah ter-import dengan benar.
+
+### Authentication Error
+1. Periksa Supabase URL dan API key
+2. Pastikan RLS sudah dikonfigurasi dengan benar
+3. Periksa domain di Supabase Auth settings
+
+## Contributing
+
+1. Fork repository
+2. Buat feature branch
+3. Commit perubahan
+4. Push ke branch
+5. Buat Pull Request

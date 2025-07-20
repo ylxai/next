@@ -35,8 +35,11 @@ export function CreateClientForm() {
       setEmail("");
       setPassword("");
       router.refresh();
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message });
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Terjadi kesalahan' 
+      });
     } finally {
       setIsLoading(false);
     }
