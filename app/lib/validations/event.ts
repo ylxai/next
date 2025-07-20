@@ -12,15 +12,15 @@ export const createEventSchema = z.object({
   }),
   max_participants: z.number().min(1, "Minimal 1 peserta").max(1000, "Maksimal 1000 peserta"),
   price: z.number().min(0, "Harga tidak boleh negatif"),
-  client_id: z.string().uuid("Client ID tidak valid").optional(),
-  client_name: z.string().min(2, "Nama klien minimal 2 karakter").max(100, "Nama klien maksimal 100 karakter").optional(),
-  client_email: z.string().email("Format email tidak valid").optional(),
-  client_phone: z.string().min(8, "Nomor telepon minimal 8 digit").max(15, "Nomor telepon maksimal 15 digit").optional(),
-  access_code: z.string().min(4, "Kode akses minimal 4 karakter").max(20, "Kode akses maksimal 20 karakter").optional(),
+  client_id: z.string().uuid("Client ID tidak valid").optional().or(z.literal("")),
+  client_name: z.string().min(2, "Nama klien minimal 2 karakter").max(100, "Nama klien maksimal 100 karakter").optional().or(z.literal("")),
+  client_email: z.string().email("Format email tidak valid").optional().or(z.literal("")),
+  client_phone: z.string().min(8, "Nomor telepon minimal 8 digit").max(15, "Nomor telepon maksimal 15 digit").optional().or(z.literal("")),
+  access_code: z.string().min(4, "Kode akses minimal 4 karakter").max(20, "Kode akses maksimal 20 karakter").optional().or(z.literal("")),
   status: z.enum(["draft", "scheduled", "ongoing", "completed", "cancelled"], {
     errorMap: () => ({ message: "Pilih status yang valid" })
   }).default("draft"),
-  notes: z.string().max(500, "Catatan maksimal 500 karakter").optional(),
+  notes: z.string().max(500, "Catatan maksimal 500 karakter").optional().or(z.literal("")),
   is_public: z.boolean().default(false),
   requires_approval: z.boolean().default(false),
 });

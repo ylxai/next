@@ -128,14 +128,33 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
       setIsLoading(true);
       setMessage(null);
 
-      // Prepare the data
+      console.log('Form data submitted:', data); // Debug log
+
+      // Clean and prepare the data
       const eventData = {
-        ...data,
-        max_participants: Number(data.max_participants),
-        price: Number(data.price),
-        // Generate access code if not provided
-        access_code: data.access_code || Math.random().toString(36).substring(2, 8).toUpperCase(),
+        title: data.title.trim(),
+        description: data.description.trim(),
+        event_type: data.event_type,
+        date: data.date,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        location: data.location.trim(),
+        max_participants: Number(data.max_participants) || 50,
+        price: Number(data.price) || 0,
+        status: data.status || 'draft',
+        is_public: Boolean(data.is_public),
+        requires_approval: Boolean(data.requires_approval),
+        
+        // Handle optional fields - convert empty strings to null
+        client_id: data.client_id || null,
+        client_name: data.client_name?.trim() || null,
+        client_email: data.client_email?.trim() || null,
+        client_phone: data.client_phone?.trim() || null,
+        notes: data.notes?.trim() || null,
+        access_code: data.access_code?.trim() || Math.random().toString(36).substring(2, 8).toUpperCase(),
       };
+
+      console.log('Prepared event data:', eventData); // Debug log
 
       let response;
       
@@ -154,7 +173,10 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
           .single();
       }
 
+      console.log('Supabase response:', response); // Debug log
+
       if (response.error) {
+        console.error('Supabase error:', response.error); // Debug log
         throw new Error(response.error.message);
       }
 
@@ -170,9 +192,28 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
 
     } catch (error) {
       console.error('Error saving event:', error);
+      
+      // More detailed error handling
+      let errorMessage = 'Terjadi kesalahan saat menyimpan event';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Handle specific database errors
+        if (error.message.includes('violates check constraint')) {
+          errorMessage = 'Data tidak memenuhi kriteria validasi. Periksa kembali input Anda.';
+        } else if (error.message.includes('violates foreign key constraint')) {
+          errorMessage = 'Klien yang dipilih tidak valid. Silakan pilih klien lain atau kosongkan.';
+        } else if (error.message.includes('duplicate key value')) {
+          errorMessage = 'Kode akses sudah digunakan. Silakan generate kode akses baru.';
+        } else if (error.message.includes('permission denied')) {
+          errorMessage = 'Anda tidak memiliki izin untuk membuat event. Pastikan Anda sudah login sebagai admin.';
+        }
+      }
+      
       setMessage({ 
         type: 'error', 
-        text: error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan event' 
+        text: errorMessage 
       });
     } finally {
       setIsLoading(false);
