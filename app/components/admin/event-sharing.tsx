@@ -4,10 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { QRCode } from "@/components/ui/qr-code";
 import { 
-  QrCodeIcon, 
   CopyIcon, 
-  DownloadIcon, 
   MailIcon, 
   MessageSquareIcon,
   LinkIcon,
@@ -23,7 +22,6 @@ interface EventSharingProps {
 
 export function EventSharing({ accessCode, eventTitle, isPublic }: EventSharingProps) {
   const [copied, setCopied] = useState<string | null>(null);
-  const [isGeneratingQR, setIsGeneratingQR] = useState(false);
 
   // Generate URLs
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -40,29 +38,7 @@ export function EventSharing({ accessCode, eventTitle, isPublic }: EventSharingP
     }
   };
 
-  // Generate QR Code
-  const generateQRCode = async () => {
-    setIsGeneratingQR(true);
-    try {
-      // This will be implemented when we create the QR code API endpoint
-      const response = await fetch(`/api/qr?text=${encodeURIComponent(eventUrl)}&size=300`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `qr-code-${accessCode}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-    } finally {
-      setIsGeneratingQR(false);
-    }
-  };
+
 
   // Share via email
   const shareViaEmail = () => {
@@ -165,30 +141,30 @@ Kode Akses: ${accessCode}
 
       {/* QR Code Section */}
       <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-medium text-gray-900">QR Code</h4>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={generateQRCode}
-            disabled={isGeneratingQR}
-          >
-            {isGeneratingQR ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-            ) : (
-              <DownloadIcon className="h-4 w-4" />
-            )}
-            <span className="ml-2">
-              {isGeneratingQR ? 'Generating...' : 'Download QR'}
-            </span>
-          </Button>
-        </div>
+        <QRCode
+          text={eventUrl}
+          size={200}
+          title="QR Code Akses Event"
+          downloadFilename={`qr-code-${eventTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`}
+          alt={`QR Code untuk akses event ${eventTitle}`}
+          showDownload={true}
+          showCopy={true}
+        />
         
-        <div className="text-center">
-          <div className="inline-block p-4 bg-white rounded-lg border-2 border-dashed border-gray-300">
-            <QrCodeIcon className="h-16 w-16 text-gray-400 mx-auto mb-2" />
-            <p className="text-sm text-gray-500">QR Code Preview</p>
-            <p className="text-xs text-gray-400">Click Download untuk generate</p>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600 mb-2">
+            Scan QR code di atas atau bagikan link event
+          </p>
+          <div className="flex justify-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => copyToClipboard(eventUrl, 'qr-url')}
+              className="text-xs"
+            >
+              <LinkIcon className="h-3 w-3 mr-1" />
+              {copied === 'qr-url' ? 'Link copied!' : 'Copy Event Link'}
+            </Button>
           </div>
         </div>
       </div>
