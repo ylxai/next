@@ -154,18 +154,31 @@ export default function TestPhotoValidation() {
 
   const runValidationTests = () => {
     const testFiles = [
-      // Valid files
+      // Valid standard image files
       new File([''], 'test.jpg', { type: 'image/jpeg' }),
       new File([''], 'test.png', { type: 'image/png' }),
       new File([''], 'test.webp', { type: 'image/webp' }),
       
+      // Valid RAW files
+      new File([''], 'canon.cr2', { type: 'image/x-canon-cr2' }),
+      new File([''], 'nikon.nef', { type: 'image/x-nikon-nef' }),
+      new File([''], 'sony.arw', { type: 'image/x-sony-arw' }),
+      new File([''], 'adobe.dng', { type: 'image/x-adobe-dng' }),
+      new File([''], 'olympus.orf', { type: 'image/x-olympus-orf' }),
+      new File([''], 'fuji.raf', { type: 'image/x-fuji-raf' }),
+      
+      // RAW files with fallback MIME type
+      new File([''], 'raw_fallback.cr2', { type: 'application/octet-stream' }),
+      
       // Invalid files
       new File([''], 'test.txt', { type: 'text/plain' }),
       new File([''], 'test.pdf', { type: 'application/pdf' }),
+      new File([''], 'test.mp4', { type: 'video/mp4' }),
       
       // Size tests (simulated)
-      Object.assign(new File([''], 'large.jpg', { type: 'image/jpeg' }), { size: 60 * 1024 * 1024 }), // 60MB
-      Object.assign(new File([''], 'small.jpg', { type: 'image/jpeg' }), { size: 1024 }), // 1KB
+      Object.assign(new File([''], 'large.jpg', { type: 'image/jpeg' }), { size: 60 * 1024 * 1024 }), // 60MB - should fail
+      Object.assign(new File([''], 'good_size.jpg', { type: 'image/jpeg' }), { size: 25 * 1024 * 1024 }), // 25MB - should pass
+      Object.assign(new File([''], 'small.jpg', { type: 'image/jpeg' }), { size: 1024 }), // 1KB - should pass
     ];
 
     const results = testFiles.map(file => {

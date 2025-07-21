@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const photoFileSchema = z.object({
   name: z.string().min(1, 'Filename required'),
   size: z.number().max(50 * 1024 * 1024, 'File size must be less than 50MB'),
-  type: z.string().regex(/^image\/(jpeg|jpg|png|webp|gif)$/, 'Only image files are allowed'),
+  type: z.string().regex(/^image\/(jpeg|jpg|png|webp|gif|x-canon-cr2|x-canon-crw|x-nikon-nef|x-sony-arw|x-adobe-dng|x-olympus-orf|x-panasonic-rw2|x-fuji-raf|x-kodak-dcr|x-minolta-mrw|x-pentax-pef|x-sigma-x3f|tiff)$|^application\/octet-stream$/, 'Only image and RAW files are allowed'),
 });
 
 // Photo metadata schema
@@ -150,22 +150,106 @@ export const eventIdSchema = z.object({
   eventId: z.string().uuid('Valid event ID required'),
 });
 
+// RAW file extensions mapping
+const RAW_EXTENSIONS = {
+  // Canon
+  'cr2': 'image/x-canon-cr2',
+  'cr3': 'image/x-canon-cr3',
+  'crw': 'image/x-canon-crw',
+  // Nikon
+  'nef': 'image/x-nikon-nef',
+  'nrw': 'image/x-nikon-nrw',
+  // Sony
+  'arw': 'image/x-sony-arw',
+  'srf': 'image/x-sony-srf',
+  'sr2': 'image/x-sony-sr2',
+  // Adobe
+  'dng': 'image/x-adobe-dng',
+  // Olympus
+  'orf': 'image/x-olympus-orf',
+  // Panasonic
+  'rw2': 'image/x-panasonic-rw2',
+  'raw': 'image/x-panasonic-raw',
+  // Fuji
+  'raf': 'image/x-fuji-raf',
+  // Pentax
+  'pef': 'image/x-pentax-pef',
+  'ptx': 'image/x-pentax-ptx',
+  // Sigma
+  'x3f': 'image/x-sigma-x3f',
+  // Kodak
+  'dcr': 'image/x-kodak-dcr',
+  'kdc': 'image/x-kodak-kdc',
+  // Minolta
+  'mrw': 'image/x-minolta-mrw',
+  // Leica
+  'rwl': 'image/x-leica-rwl',
+  'dcs': 'image/x-kodak-dcs',
+  // Hasselblad
+  '3fr': 'image/x-hasselblad-3fr',
+  // Mamiya
+  'mef': 'image/x-mamiya-mef',
+  // Phase One
+  'iiq': 'image/x-phaseone-iiq',
+};
+
 // Validation helper functions
 export function validateImageFile(file: File): { isValid: boolean; error?: string } {
   const maxSize = 50 * 1024 * 1024; // 50MB
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+  
+  // Standard image MIME types
+  const allowedImageTypes = [
+    'image/jpeg', 
+    'image/jpg', 
+    'image/png', 
+    'image/webp', 
+    'image/gif'
+  ];
+  
+  // RAW file MIME types
+  const allowedRawTypes = [
+    'image/x-canon-cr2', 'image/x-canon-cr3', 'image/x-canon-crw',
+    'image/x-nikon-nef', 'image/x-nikon-nrw',
+    'image/x-sony-arw', 'image/x-sony-srf', 'image/x-sony-sr2',
+    'image/x-adobe-dng',
+    'image/x-olympus-orf',
+    'image/x-panasonic-rw2', 'image/x-panasonic-raw',
+    'image/x-fuji-raf',
+    'image/x-pentax-pef', 'image/x-pentax-ptx',
+    'image/x-sigma-x3f',
+    'image/x-kodak-dcr', 'image/x-kodak-kdc',
+    'image/x-minolta-mrw',
+    'image/x-leica-rwl', 'image/x-kodak-dcs',
+    'image/x-hasselblad-3fr',
+    'image/x-mamiya-mef',
+    'image/x-phaseone-iiq',
+    'image/tiff', // Some RAW files reported as TIFF
+    'application/octet-stream' // Fallback for unrecognized RAW files
+  ];
 
-  if (!allowedTypes.includes(file.type)) {
-    return {
-      isValid: false,
-      error: 'Only JPEG, PNG, WebP, and GIF files are allowed',
-    };
-  }
+  const allAllowedTypes = [...allowedImageTypes, ...allowedRawTypes];
 
+  // Check file size first
   if (file.size > maxSize) {
     return {
       isValid: false,
       error: 'File size must be less than 50MB',
+    };
+  }
+
+  // Get file extension
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  
+  // Check if it's a known RAW extension
+  if (fileExtension && RAW_EXTENSIONS[fileExtension as keyof typeof RAW_EXTENSIONS]) {
+    return { isValid: true };
+  }
+
+  // Check MIME type for standard images and recognized RAW types
+  if (!allAllowedTypes.includes(file.type)) {
+    return {
+      isValid: false,
+      error: 'Only JPG, JPEG, PNG, and RAW files (CR2, NEF, ARW, DNG, ORF, RW2, RAF, PEF, X3F, etc.) are allowed',
     };
   }
 
@@ -212,6 +296,21 @@ export function generateSafeFilename(originalFilename: string): string {
     .substring(0, 50); // Limit length
   
   return `${timestamp}_${randomString}_${safeName}.${extension}`;
+}
+
+// Helper function to check if file is RAW format
+export function isRawFile(file: File): boolean {
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  return !!(fileExtension && RAW_EXTENSIONS[fileExtension as keyof typeof RAW_EXTENSIONS]);
+}
+
+// Helper function to get expected MIME type for RAW files
+export function getExpectedMimeType(filename: string): string | null {
+  const extension = filename.split('.').pop()?.toLowerCase();
+  if (extension && RAW_EXTENSIONS[extension as keyof typeof RAW_EXTENSIONS]) {
+    return RAW_EXTENSIONS[extension as keyof typeof RAW_EXTENSIONS];
+  }
+  return null;
 }
 
 // Type exports for use in components

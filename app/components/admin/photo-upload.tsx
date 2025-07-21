@@ -312,7 +312,7 @@ export function PhotoUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,.cr2,.cr3,.crw,.nef,.nrw,.arw,.srf,.sr2,.dng,.orf,.rw2,.raw,.raf,.pef,.ptx,.x3f,.dcr,.kdc,.mrw,.rwl,.dcs,.3fr,.mef,.iiq"
           onChange={handleFileInput}
           className="hidden"
           disabled={disabled || isUploading}
@@ -331,7 +331,7 @@ export function PhotoUpload({
               Drag and drop files here, or click to select files
             </p>
             <p className="text-xs text-gray-400 mt-2">
-              Supports JPEG, PNG, WebP, GIF up to 50MB each. Max {maxFiles} files.
+              Supports JPG, PNG, and RAW files (CR2, NEF, ARW, DNG, ORF, RW2, RAF, etc.) up to 50MB each. Max {maxFiles} files.
             </p>
           </div>
         </div>
