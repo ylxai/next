@@ -14,7 +14,8 @@ import { PhotoGallery } from '@/app/components/admin/photo-gallery';
 import { AdminNav } from '@/app/components/admin/admin-nav';
 import { CachedDashboardStats } from '@/app/components/admin/cached-dashboard-stats';
 import { useCachedRecentEvents } from '@/app/lib/hooks/use-cached-data';
-import { RLSEmergencyFix } from '@/app/components/admin/rls-emergency-fix';
+
+import { StorageDiagnostic } from '@/app/components/admin/storage-diagnostic';
 
 export default function Dashboard() {
   // Use cached recent events with React Query
@@ -34,8 +35,8 @@ export default function Dashboard() {
             {/* Stats Grid - Using cached data */}
       <CachedDashboardStats />
 
-      {/* RLS Emergency Fix - Show prominently if there are upload issues */}
-      <RLSEmergencyFix />
+      {/* Storage Diagnostic - Since auth is working, check storage issues */}
+      <StorageDiagnostic />
 
       {/* Free Photo Upload */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -167,16 +168,16 @@ export default function Dashboard() {
                 className="w-full justify-start"
                 onClick={async () => {
                   try {
-                    const response = await fetch('/api/test-auth');
+                    const response = await fetch('/api/test-storage');
                     const result = await response.json();
-                    alert(JSON.stringify(result, null, 2));
+                    alert(result.success ? '✅ Storage working!' : `❌ Storage issue: ${result.message}`);
                   } catch (error) {
                     alert('Test failed: ' + error);
                   }
                 }}
               >
                 <Clock className="w-4 h-4 mr-3" />
-                Test Auth & Upload
+                Quick Storage Test
               </Button>
             </div>
           </div>
