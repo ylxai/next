@@ -1,5 +1,5 @@
-import Link from 'next/link';   
-import { useRouter } from 'next/navigation';  
+export const dynamic = 'force-dynamic';
+  
 import { createClient } from '@/app/lib/supabase/server';
 import { Button } from '@/app/components/ui/button';
 import { QRCode } from '@/app/components/ui/qr-code';

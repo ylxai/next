@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,7 +47,7 @@ interface FileWithPreview {
 }
 
 interface UploadResults {
-  successful: any[];
+  successful: Array<{ filename: string; file_path: string; id?: string }>;
   failed: Array<{ filename: string; error: string }>;
   total: number;
 }
@@ -240,10 +241,10 @@ export function PhotoUpload({
       setFiles(prev => prev.map(file => {
         const fileName = file.name || '';
         const successfulUpload = results.results?.successful?.find(
-          (s: any) => s && s.original_filename === fileName
+          (s: { original_filename?: string }) => s && s.original_filename === fileName
         );
         const failedUpload = results.results?.failed?.find(
-          (f: any) => f && (f.filename === fileName || f.original_filename === fileName)
+          (f: { filename?: string; original_filename?: string }) => f && (f.filename === fileName || f.original_filename === fileName)
         );
 
         if (successfulUpload) {
@@ -446,9 +447,11 @@ export function PhotoUpload({
             {files.map((file) => (
               <div key={file.id} className="bg-white border rounded-lg p-3">
                 <div className="aspect-square mb-3 bg-gray-100 rounded overflow-hidden">
-                  <img
+                  <Image
                     src={file.preview}
                     alt={file.name}
+                    width={200}
+                    height={200}
                     className="w-full h-full object-cover"
                   />
                 </div>

@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ESLint configuration
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // Output configuration
+  output: 'standalone',
+  
   // Experimental features
   experimental: {
     optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],

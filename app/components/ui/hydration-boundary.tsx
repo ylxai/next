@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 
 interface HydrationBoundaryProps {
   children: ReactNode;
@@ -54,7 +54,7 @@ export function ClientOnly({
   children: ReactNode; 
   fallback?: ReactNode; 
 }) {
-  const { useState, useEffect } = require('react');
+  // React hooks are already imported at the top
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {

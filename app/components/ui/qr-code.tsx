@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { DownloadIcon, CopyIcon, CheckIcon } from "lucide-react";
 
@@ -149,11 +150,12 @@ export function QRCode({
               <p className="text-sm text-gray-500">Loading QR Code...</p>
             </div>
           ) : qrCodeData ? (
-            <img 
+            <Image 
               src={qrCodeData} 
               alt={alt}
+              width={size}
+              height={size}
               className="mx-auto object-contain"
-              style={{ width: size, height: size }}
             />
           ) : (
             <div className="space-y-2">

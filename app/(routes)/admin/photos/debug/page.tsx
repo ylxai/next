@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/app/components/ui/button';    
 import Link from 'next/link';
@@ -9,7 +11,7 @@ interface DebugResult {
   test: string;
   status: 'pass' | 'fail' | 'warning';
   message: string;
-  details?: any;
+  details?: string | object | null;
 }
 
 interface StorageInfo {
@@ -22,11 +24,7 @@ interface StorageInfo {
 export default function UploadDebugPage() {
   const [debugResults, setDebugResults] = useState<DebugResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    runDiagnostics();
-  }, []);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
 
   const runDiagnostics = async () => {
     setLoading(true);
@@ -179,7 +177,7 @@ export default function UploadDebugPage() {
             test: "Storage Upload Test",
             status: "fail",
             message: "Upload test error",
-            details: error
+            details: String(error)
           });
         }
       }
@@ -209,7 +207,7 @@ export default function UploadDebugPage() {
           test: "API Endpoint",
           status: "fail",
           message: "API endpoint error",
-          details: error
+          details: String(error)
         });
       }
 
@@ -218,7 +216,7 @@ export default function UploadDebugPage() {
         test: "General Error",
         status: "fail",
         message: "Unexpected error during diagnostics",
-        details: error
+        details: String(error)
       });
     }
 
@@ -226,7 +224,7 @@ export default function UploadDebugPage() {
     setLoading(false);
   };
 
-  const checkStorageSetup = async (supabase: any): Promise<StorageInfo> => {
+  const checkStorageSetup = async (supabase: ReturnType<typeof createClient>): Promise<StorageInfo> => {
     const storageInfo: StorageInfo = {
       bucketExists: false,
       canUpload: false,
@@ -255,11 +253,11 @@ export default function UploadDebugPage() {
           storageInfo.error += ` Direct access also failed: ${directError}`;
         }
       } else {
-        const photosBucket = buckets?.find((bucket: any) => bucket.id === 'photos');
+        const photosBucket = buckets?.find((bucket: { id: string }) => bucket.id === 'photos');
         storageInfo.bucketExists = !!photosBucket;
         
         if (!photosBucket && buckets) {
-          storageInfo.error = `Bucket 'photos' not found. Available buckets: ${buckets.map((b: any) => b.id).join(', ') || 'none'}`;
+          storageInfo.error = `Bucket 'photos' not found. Available buckets: ${buckets.map((b: { id: string }) => b.id).join(', ') || 'none'}`;
         }
       }
 
@@ -304,6 +302,10 @@ export default function UploadDebugPage() {
 
     return storageInfo;
   };
+
+  useEffect(() => {
+    runDiagnostics();
+  }, []);
 
   const getStatusIcon = (status: 'pass' | 'fail' | 'warning') => {
     switch (status) {
@@ -430,7 +432,7 @@ CREATE POLICY "Photos bucket - authenticated upload" ON storage.objects
                   <h3 className="font-medium">If File Validation fails:</h3>
                   <p className="text-sm">This error usually means the file object is invalid:</p>
                   <code className="block bg-blue-100 p-2 rounded mt-1 text-xs">
-                    Error: Cannot read properties of undefined (reading 'split')
+                    Error: Cannot read properties of undefined (reading &apos;split&apos;)
                   </code>
                   <p className="text-sm mt-1">Solution: Refresh the page and try uploading a different file.</p>
                 </div>
@@ -441,7 +443,7 @@ CREATE POLICY "Photos bucket - authenticated upload" ON storage.objects
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
               <h2 className="text-lg font-semibold text-yellow-900 mb-4">📊 Database Setup</h2>
               <div className="text-yellow-800 space-y-2">
-                <p className="text-sm">If the photos table doesn't exist, run this command in your project:</p>
+                <p className="text-sm">If the photos table doesn&apos;t exist, run this command in your project:</p>
                 <code className="block bg-yellow-100 p-2 rounded text-xs">
                   psql [your-supabase-connection-string] -f database/photos_schema.sql
                 </code>

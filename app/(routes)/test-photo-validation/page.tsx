@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/app/components/ui/button'; 
 import Link from 'next/link';
@@ -30,11 +32,7 @@ export default function TestPhotoValidation() {
     apiEndpoint: false
   });
   const [loading, setLoading] = useState(true);
-  const [validationResults, setValidationResults] = useState<any[]>([]);
-
-  useEffect(() => {
-    runSystemCheck();
-  }, []);
+  const [validationResults, setValidationResults] = useState<{ filename: string; type: string; size: number; validation: { isValid: boolean; error?: string } }[]>([]);
 
   const runSystemCheck = async () => {
     setLoading(true);
@@ -84,7 +82,7 @@ export default function TestPhotoValidation() {
     setLoading(false);
   };
 
-  const checkStorageSetup = async (supabase: any): Promise<StorageInfo> => {
+  const checkStorageSetup = async (supabase: ReturnType<typeof createClient>): Promise<StorageInfo> => {
     const storageInfo: StorageInfo = {
       bucketExists: false,
       canUpload: false,
@@ -100,7 +98,7 @@ export default function TestPhotoValidation() {
         return storageInfo;
       }
 
-      const photosBucket = buckets?.find((bucket: any) => bucket.id === 'photos');
+      const photosBucket = buckets?.find((bucket: { id: string }) => bucket.id === 'photos');
       storageInfo.bucketExists = !!photosBucket;
 
       if (storageInfo.bucketExists) {
@@ -215,6 +213,10 @@ export default function TestPhotoValidation() {
     setValidationResults(results);
   };
 
+  useEffect(() => {
+    runSystemCheck();
+  }, []);
+
   const StatusIndicator = ({ status, label }: { status: boolean; label: string }) => (
     <div className="flex items-center space-x-2">
       <span className={`w-3 h-3 rounded-full ${status ? 'bg-green-500' : 'bg-red-500'}`}></span>
@@ -295,11 +297,11 @@ export default function TestPhotoValidation() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-yellow-900 mb-4">⚠️ Storage Setup Required</h2>
             <div className="text-yellow-800 space-y-4">
-              <p>The Supabase Storage bucket "photos" is not set up. Follow these steps:</p>
+                                <p>The Supabase Storage bucket &quot;photos&quot; is not set up. Follow these steps:</p>
               <ol className="list-decimal list-inside space-y-2 ml-4">
                 <li>Go to your Supabase Dashboard → Storage</li>
-                <li>Click "Create a new bucket"</li>
-                <li>Name it "photos" and make it public</li>
+                <li>Click &quot;Create a new bucket&quot;</li>
+                                  <li>Name it &quot;photos&quot; and make it public</li>
                 <li>Set up the following policies in SQL Editor:</li>
               </ol>
               
@@ -406,7 +408,7 @@ CREATE POLICY "Admins can delete photos" ON storage.objects
               <p>• Please log in as an admin user</p>
             )}
             {!systemStatus.storage.bucketExists && (
-              <p>• Set up the Supabase Storage bucket "photos" (see instructions above)</p>
+                                <p>• Set up the Supabase Storage bucket &quot;photos&quot; (see instructions above)</p>
             )}
             {systemStatus.auth && systemStatus.admin && systemStatus.storage.bucketExists && (
               <p>• ✅ System is ready! You can proceed to test photo uploads.</p>

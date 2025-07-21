@@ -160,7 +160,7 @@ export function AdminSidebar({ className }: AdminSidebarProps) {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">Quick Stats</p>
-              <p className="text-xs text-gray-500">Today's overview</p>
+              <p className="text-xs text-gray-500">Today&apos;s overview</p>
             </div>
           </div>
           

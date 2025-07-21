@@ -349,7 +349,7 @@ export async function getPhotoFileInfo(path: string): Promise<{
   data?: {
     size: number;
     lastModified: string;
-    metadata: Record<string, any>;
+    metadata: Record<string, unknown>;
   };
   error?: string;
 }> {

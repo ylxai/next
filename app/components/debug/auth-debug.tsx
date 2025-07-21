@@ -82,7 +82,7 @@ export function AuthDebug() {
         file_path: 'test/test.jpg',
         file_size: 1024,
         mime_type: 'image/jpeg',
-        uploaded_by: authStatus.user.id,
+        uploaded_by: authStatus.user?.id || 'unknown',
         is_approved: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()

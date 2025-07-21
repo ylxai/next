@@ -25,9 +25,7 @@ interface EventFormProps {
   initialData?: Partial<CreateEventInput>;
 }
 
-interface FormData extends CreateEventInput {
-  id?: string;
-}
+type FormData = CreateEventInput;
 
 export function EventForm({ mode, eventId, initialData }: EventFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -250,7 +248,7 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
   }
 
   return (  
-    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">    
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">    
       {/* Header */}
       <div className="border-b pb-4">
         <h2 className="text-xl font-semibold text-gray-900">

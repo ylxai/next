@@ -68,7 +68,7 @@ export function RLSEmergencyFix() {
           <AlertTriangle className="w-6 h-6 text-red-600" />
           <div>
             <h2 className="text-xl font-semibold text-gray-900">RLS Emergency Fix</h2>
-            <p className="text-sm text-gray-500">Fix "row-level security policy" errors</p>
+            <p className="text-sm text-gray-500">Fix &quot;row-level security policy&quot; errors</p>
           </div>
         </div>
       </div>

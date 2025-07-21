@@ -195,7 +195,7 @@ export async function POST() {
         error: 'Storage upload failed',
         details: uploadError.message,
         code: uploadError.name,
-        statusCode: uploadError.statusCode
+        statusCode: 500
       }, { status: 500 });
     }
 

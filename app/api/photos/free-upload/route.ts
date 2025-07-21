@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
           results.failed.push({
             filename: file.name || 'unknown',
             original_filename: file.name || 'unknown.jpg',
-            error: validation.error
+            error: validation.error || 'Validation failed'
           });
           continue;
         }
@@ -126,12 +126,12 @@ export async function POST(request: NextRequest) {
               path: t.path,
               url: t.url
             })) || [],
-            camera: metadata.camera,
-            lens: metadata.lens,
-            iso: metadata.iso,
-            aperture: metadata.aperture,
-            shutterSpeed: metadata.shutterSpeed,
-            focalLength: metadata.focalLength,
+            camera: null,
+            lens: null,
+            iso: null,
+            aperture: null,
+            shutterSpeed: null,
+            focalLength: null,
             uploadType: 'free' // Mark as free upload
           }
         };

@@ -13,7 +13,7 @@ export interface Photo {
   is_approved: boolean;
   upload_date: string;
   uploaded_by: string | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

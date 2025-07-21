@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/app/lib/supabase/server';
 import { 
   photoQuerySchema, 
-  createPhotoSchema,
-  updatePhotoSchema,
   bulkPhotoOperationSchema,
-  generateSafeFilename,
-  validateImageFile
+  generateSafeFilename
 } from '@/app/lib/validations/photo';
 import { uploadPhotoToStorage, extractImageMetadata } from '@/app/lib/utils/storage';
 
@@ -177,7 +174,7 @@ export async function POST(request: NextRequest) {
     }
 
     const results: {
-      successful: any[];
+      successful: Array<{ filename: string; file_path: string; file_size: number; mime_type: string; is_featured: boolean; is_approved: boolean }>;
       failed: Array<{ filename: string; original_filename: string; error: string }>;
     } = {
       successful: [],
@@ -202,7 +199,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Extract image metadata
-        const metadata = await extractImageMetadata(file) as any;
+        const metadata = await extractImageMetadata(file);
 
         // Create photo record in database
         const safeFilename = uploadResult.data.path.split('/').pop() || generateSafeFilename(file.name || 'unknown');
@@ -308,9 +305,9 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const { photo_ids, operation, value } = validationResult.data;
+    const { photo_ids, operation } = validationResult.data;
 
-    let updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     switch (operation) {
       case 'approve':
@@ -333,17 +330,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (operation === 'delete') {
-      // Delete photos and their storage files
-      const { data: photosToDelete, error: fetchError } = await supabase
-        .from('photos')
-        .select('id, file_path')
-        .in('id', photo_ids);
-
-      if (fetchError) {
-        return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });
-      }
-
-      // Delete from database first
+      // Delete photos from database
       const { error: deleteError } = await supabase
         .from('photos')
         .delete()

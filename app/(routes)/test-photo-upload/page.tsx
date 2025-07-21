@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { PhotoUpload } from '@/app/components/admin/photo-upload';
 import Link from 'next/link';
 import { Button } from '@/app/components/ui/button';
@@ -20,7 +22,7 @@ export default function TestPhotoUpload() {
   const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
 
   useEffect(() => {
     const supabase = createClient();

@@ -140,7 +140,7 @@ export function PhotoGallery({ className = '', maxPhotos = 20 }: PhotoGalleryPro
             key={tab.key}
             variant={filter === tab.key ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setFilter(tab.key as any)}
+            onClick={() => setFilter(tab.key as 'all' | 'approved' | 'pending' | 'featured')}
             className="text-sm"
           >
             {tab.label}

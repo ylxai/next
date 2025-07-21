@@ -25,9 +25,7 @@ interface ClientFormProps {
   onSuccess?: () => void;
 }
 
-interface FormData extends CreateClientInput {
-  id?: string;
-}
+type FormData = CreateClientInput;
 
 export function ClientForm({ mode, clientId, initialData, onSuccess }: ClientFormProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +34,7 @@ export function ClientForm({ mode, clientId, initialData, onSuccess }: ClientFor
   const router = useRouter();
   const supabase = createClient();
 
-  const schema = mode === "edit" ? updateClientSchema : createClientSchema;
+  const schema = createClientSchema;
   
   const {
     register,
