@@ -167,18 +167,48 @@ export function PhotoUpload({
         body: formData
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (parseError) {
+        throw new Error(`Server returned invalid JSON. Status: ${response.status} ${response.statusText}`);
       }
 
-      const results = await response.json();
+      if (!response.ok) {
+        // Enhanced error reporting based on status code
+        let errorMessage = `Upload failed: ${response.status} ${response.statusText}`;
+        
+        if (responseData?.error) {
+          errorMessage = responseData.error;
+        }
+
+        // Provide specific guidance based on error type
+        switch (response.status) {
+          case 401:
+            errorMessage += '\n\nPlease log in and try again.';
+            break;
+          case 403:
+            errorMessage += '\n\nAdmin access required for photo uploads.';
+            break;
+          case 404:
+            errorMessage += '\n\nThe selected event was not found. Please refresh and select a valid event.';
+            break;
+          case 500:
+            errorMessage += '\n\nServer error. Check console for details and verify Supabase Storage is configured.';
+            break;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const results = responseData;
 
       // Update file statuses based on results
       setFiles(prev => prev.map(file => {
-        const successfulUpload = results.results.successful.find(
+        const successfulUpload = results.results?.successful?.find(
           (s: any) => s.original_filename === file.name
         );
-        const failedUpload = results.results.failed.find(
+        const failedUpload = results.results?.failed?.find(
           (f: any) => f.filename === file.name
         );
 
@@ -200,14 +230,14 @@ export function PhotoUpload({
 
       if (onUploadComplete) {
         onUploadComplete({
-          successful: results.results.successful,
-          failed: results.results.failed,
+          successful: results.results?.successful || [],
+          failed: results.results?.failed || [],
           total: files.length
         });
       }
 
       // Clear form if all uploads successful
-      if (results.results.failed.length === 0) {
+      if (results.results?.failed?.length === 0) {
         setTimeout(() => {
           clearAllFiles();
           setDescription("");
@@ -217,12 +247,35 @@ export function PhotoUpload({
 
     } catch (error) {
       console.error('Upload error:', error);
-      // Mark all files as error
+      
+      // Enhanced error logging
+      console.group('Photo Upload Debug Information');
+      console.log('Event ID:', eventId);
+      console.log('Files count:', files.length);
+      console.log('Description:', description);
+      console.log('Is Featured:', isFeatured);
+      console.log('Auto Approve:', autoApprove);
+      console.log('Error details:', error);
+      console.groupEnd();
+      
+      // Mark all files as error with detailed message
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed - Unknown error';
       setFiles(prev => prev.map(file => ({
         ...file,
         status: 'error' as const,
-        error: error instanceof Error ? error.message : 'Upload failed'
+        error: errorMessage
       })));
+
+      // Show user-friendly error message
+      if (error instanceof Error && error.message.includes('404')) {
+        alert('Event not found. Please refresh the page and select a valid event.');
+      } else if (error instanceof Error && error.message.includes('401')) {
+        alert('Please log in to upload photos.');
+      } else if (error instanceof Error && error.message.includes('403')) {
+        alert('Admin access required for photo uploads.');
+      } else {
+        alert(`Upload failed: ${errorMessage}\n\nCheck the browser console for more details.`);
+      }
     } finally {
       setIsUploading(false);
     }
