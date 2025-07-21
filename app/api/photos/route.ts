@@ -212,7 +212,8 @@ export async function POST(request: NextRequest) {
           event_id: eventId,
           filename: safeFilename,
           original_filename: safeOriginalFilename,
-          file_path: uploadResult.data.path,
+          file_path: uploadResult.data.path, // Keep for backward compatibility
+          storage_path: uploadResult.data.path, // Add the required column
           file_size: file.size,
           mime_type: file.type,
           width: metadata.width || null,

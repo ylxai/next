@@ -16,6 +16,7 @@ import { CachedDashboardStats } from '@/app/components/admin/cached-dashboard-st
 import { useCachedRecentEvents } from '@/app/lib/hooks/use-cached-data';
 
 import { StorageDiagnostic } from '@/app/components/admin/storage-diagnostic';
+import { SchemaFixNotification } from '@/app/components/admin/schema-fix-notification';
 
 export default function Dashboard() {
   // Use cached recent events with React Query
@@ -31,6 +32,9 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-1">Welcome to your photo studio management panel</p>
       </div>
+
+      {/* Schema Fix Notification */}
+      <SchemaFixNotification />
 
             {/* Stats Grid - Using cached data */}
       <CachedDashboardStats />

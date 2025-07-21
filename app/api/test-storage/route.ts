@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/app/lib/supabase/server';
 
 // Test storage bucket access and upload functionality
@@ -103,7 +103,8 @@ export async function GET() {
       const testPhoto = {
         filename: `test-storage-${Date.now()}.jpg`,
         original_filename: 'test-storage.jpg',
-        file_path: 'test/storage-test.jpg',
+        file_path: 'test/storage-test.jpg', // Keep for backward compatibility
+        storage_path: 'test/storage-test.jpg', // Add the required column
         file_size: 1024,
         mime_type: 'image/jpeg',
         uploaded_by: user.id,
@@ -204,7 +205,8 @@ export async function POST() {
     const photoData = {
       filename: fileName,
       original_filename: 'test-upload.png',
-      file_path: uploadData.path,
+      file_path: uploadData.path, // Keep for backward compatibility  
+      storage_path: uploadData.path, // Add the required column
       file_size: testFile.size,
       mime_type: 'image/png',
       uploaded_by: user.id,
