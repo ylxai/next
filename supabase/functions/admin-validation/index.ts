@@ -1,13 +1,27 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
+// Direct import of Supabase client - no type references needed
+import { createClient } from '@supabase/supabase-js';
+
+/**
+ * @typedef {Object} DenoEnv
+ * @property {function(string): (string|undefined)} get
+ * @property {function(string, string): void} set
+ * @property {function(): Object.<string, string>} toObject
+ */
+
+/**
+ * @typedef {Object} Deno
+ * @property {DenoEnv} env
+ * @property {function(function(Request): (Response|Promise<Response>)): void} serve
+ */
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
 };
 
-Deno.serve(async (req) => {
+Deno.serve(async (req) => {  // @ts-ignore  
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === 'OPTIONS') { 
     return new Response('ok', { headers: corsHeaders });
   }
 
@@ -21,8 +35,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
+    const supabase = createClient(  
+      Deno.env.get('SUPABASE_URL')!,  
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { 
         global: { 

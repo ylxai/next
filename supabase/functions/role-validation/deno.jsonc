@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --watch index.ts"
+  },
+  "compilerOptions": {
+    "strict": true
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "proseWrap": "preserve"
+  }
+} 
