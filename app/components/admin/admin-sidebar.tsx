@@ -43,6 +43,11 @@ const sidebarItems: SidebarItem[] = [
     label: 'Photos',
     icon: Camera,
   },
+  {
+    href: '/admin/roles',
+    label: 'Role Management',
+    icon: Settings,
+  },
 ];
 
 const bottomItems: SidebarItem[] = [
