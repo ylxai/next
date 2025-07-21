@@ -8,11 +8,27 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Check authentication
+    // Check authentication with more detailed error handling
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    
+    if (authError) {
+      console.error('Authentication error:', authError);
+      return NextResponse.json({ 
+        error: 'Authentication failed', 
+        details: authError.message 
+      }, { status: 401 });
     }
+    
+    if (!user || !user.id) {
+      console.error('No user found in session');
+      return NextResponse.json({ 
+        error: 'Authentication required - no valid user session found',
+        details: 'Please log in to upload photos' 
+      }, { status: 401 });
+    }
+
+    console.log('Authenticated user ID:', user.id);
+    console.log('User email:', user.email);
 
     // Parse form data
     const formData = await request.formData();
@@ -100,7 +116,9 @@ export async function POST(request: NextRequest) {
           description: description || null,
           is_featured: isFeatured,
           is_approved: autoApprove,
-          uploaded_by: user.id,
+          uploaded_by: user.id, // Critical: Set uploaded_by to current user for RLS
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           metadata: {
             thumbnails: uploadResult.data.thumbnails?.map(t => ({
               size: t.size,
@@ -125,10 +143,25 @@ export async function POST(request: NextRequest) {
 
         if (dbError) {
           console.error('Database error:', dbError);
+          console.error('Photo data being inserted:', photoData);
+          console.error('User ID:', user.id);
+          
+          let errorMessage = 'Failed to save photo record';
+          
+          // Handle specific RLS error
+          if (dbError.message?.includes('row-level security policy')) {
+            errorMessage = 'Permission denied: Row-level security policy violation. Make sure you are authenticated and have proper permissions.';
+            console.error('RLS Policy Error - User not authenticated or missing uploaded_by field');
+          } else if (dbError.code === '42501') {
+            errorMessage = 'Permission denied: Insufficient privileges to insert photo record.';
+          } else if (dbError.code === '23505') {
+            errorMessage = 'Duplicate entry: A photo with this filename already exists.';
+          }
+          
           results.failed.push({
             filename: file.name || 'unknown',
             original_filename: file.name || 'unknown.jpg',
-            error: 'Failed to save photo record'
+            error: errorMessage
           });
           continue;
         }

@@ -150,6 +150,13 @@ export default function Dashboard() {
                   Review Pending Photos
                 </Link>
               </Button>
+              
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href="/debug/auth">
+                  <Clock className="w-4 h-4 mr-3" />
+                  Debug Auth & RLS
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
