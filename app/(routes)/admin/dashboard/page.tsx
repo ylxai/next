@@ -7,7 +7,7 @@ import {
   Upload,
   Clock
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import Link from 'next/link';
 import { FreePhotoUpload } from '@/app/components/admin/free-photo-upload';
 import { PhotoGallery } from '@/app/components/admin/photo-gallery';

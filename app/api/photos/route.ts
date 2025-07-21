@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Extract image metadata
-        const metadata = await extractImageMetadata(file);
+        const metadata = await extractImageMetadata(file) as any;
 
         // Create photo record in database
         const safeFilename = uploadResult.data.path.split('/').pop() || generateSafeFilename(file.name || 'unknown');

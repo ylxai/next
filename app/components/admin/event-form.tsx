@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -47,7 +47,7 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
     watch,
     reset,
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       status: "draft",
       is_public: false,
@@ -203,7 +203,7 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
         stack: error instanceof Error ? error.stack : undefined,
         mode,
         eventId,
-        eventData: JSON.stringify(eventData, null, 2)
+        // eventData is not defined in this scope; remove or fix reference
       });
 
       // Improved error handling

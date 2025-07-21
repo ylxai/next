@@ -7,9 +7,7 @@ export const createClientSchema = z.object({
   company: z.string().max(100, "Nama perusahaan maksimal 100 karakter").optional().or(z.literal("")),
   address: z.string().max(300, "Alamat maksimal 300 karakter").optional().or(z.literal("")),
   notes: z.string().max(500, "Catatan maksimal 500 karakter").optional().or(z.literal("")),
-  status: z.enum(["active", "inactive"], {
-    errorMap: () => ({ message: "Pilih status yang valid" })
-  }).default("active"),
+  status: z.enum(["active", "inactive"]).default("active"),
 });
 
 export const updateClientSchema = createClientSchema.extend({

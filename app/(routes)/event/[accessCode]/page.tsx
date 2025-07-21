@@ -1,7 +1,9 @@
+import Link from 'next/link';   
+import { useRouter } from 'next/navigation';  
 import { createClient } from '@/app/lib/supabase/server';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import { QRCode } from '@/app/components/ui/qr-code';
-import Link from 'next/link';
+
 import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, DollarSignIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';
 

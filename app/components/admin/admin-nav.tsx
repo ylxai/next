@@ -10,7 +10,7 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 interface NavItem {
   href: string;

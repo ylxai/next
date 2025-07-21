@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Extract image metadata
-        const metadata = await extractImageMetadata(file);
+        const metadata = await extractImageMetadata(file) as any;
 
         // Create photo record in database without event_id requirement
         const safeFilename = uploadResult.data.path.split('/').pop() || generateSafeFilename(file.name || 'unknown');
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
           event_id: null, // Free upload doesn't require event
           filename: safeFilename,
           original_filename: safeOriginalFilename,
-          file_path: uploadResult.data.path,
+          storage_path: uploadResult.data.path,
           file_size: file.size,
           mime_type: file.type,
           width: metadata.width || null,
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
           description: description || null,
           is_featured: isFeatured,
           is_approved: autoApprove,
-          uploaded_by: user.id, // Critical: Set uploaded_by to current user for RLS
+          user_id: user.id, // Critical: Set user_id to current user for RLS
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           metadata: {

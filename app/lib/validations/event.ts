@@ -7,9 +7,7 @@ export const createEventSchema = z.object({
   start_time: z.string().min(1, "Waktu mulai wajib diisi"),
   end_time: z.string().min(1, "Waktu selesai wajib diisi"),
   location: z.string().min(3, "Lokasi minimal 3 karakter").max(200, "Lokasi maksimal 200 karakter"),
-  event_type: z.enum(["wedding", "birthday", "corporate", "graduation", "engagement", "family", "other"], {
-    errorMap: () => ({ message: "Pilih tipe event yang valid" })
-  }),
+  event_type: z.enum(["wedding", "birthday", "corporate", "graduation", "engagement", "family", "other"]),
   max_participants: z.number().min(1, "Minimal 1 peserta").max(1000, "Maksimal 1000 peserta"),
   price: z.number().min(0, "Harga tidak boleh negatif"),
   client_id: z.string().uuid("Client ID tidak valid").optional().or(z.literal("")),
@@ -17,9 +15,7 @@ export const createEventSchema = z.object({
   client_email: z.string().email("Format email tidak valid").optional().or(z.literal("")),
   client_phone: z.string().min(8, "Nomor telepon minimal 8 digit").max(15, "Nomor telepon maksimal 15 digit").optional().or(z.literal("")),
   access_code: z.string().min(4, "Kode akses minimal 4 karakter").max(20, "Kode akses maksimal 20 karakter").optional().or(z.literal("")),
-  status: z.enum(["draft", "scheduled", "ongoing", "completed", "cancelled"], {
-    errorMap: () => ({ message: "Pilih status yang valid" })
-  }).default("draft"),
+  status: z.enum(["draft", "scheduled", "ongoing", "completed", "cancelled"]).default("draft"),
   notes: z.string().max(500, "Catatan maksimal 500 karakter").optional().or(z.literal("")),
   is_public: z.boolean().default(false),
   requires_approval: z.boolean().default(false),

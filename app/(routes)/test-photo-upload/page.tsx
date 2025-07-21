@@ -2,7 +2,7 @@
 
 import { PhotoUpload } from '@/app/components/admin/photo-upload';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
 import { DateOnly } from '@/app/components/ui/date-display';

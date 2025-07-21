@@ -1,6 +1,6 @@
 import { createClient } from '@/app/lib/supabase/server';
 import { ClientForm } from '@/app/components/admin/client-form';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import Link from 'next/link';
 
 export default async function ClientsPage() {

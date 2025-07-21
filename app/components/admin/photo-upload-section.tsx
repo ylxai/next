@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PhotoUpload } from "./photo-upload";
+import { PhotoUpload } from "@/app/components/admin/photo-upload";    
 
 interface PhotoUploadSectionProps {
   events: Array<{

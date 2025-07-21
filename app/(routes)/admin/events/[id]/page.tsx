@@ -1,5 +1,5 @@
 import { createClient } from '@/app/lib/supabase/server';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/app/components/ui/button';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { 

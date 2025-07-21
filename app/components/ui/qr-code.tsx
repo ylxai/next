@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "./button";
+import { Button } from "@/app/components/ui/button";
 import { DownloadIcon, CopyIcon, CheckIcon } from "lucide-react";
 
 interface QRCodeProps {
