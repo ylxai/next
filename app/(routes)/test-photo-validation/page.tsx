@@ -153,6 +153,23 @@ export default function TestPhotoValidation() {
   };
 
   const runValidationTests = () => {
+    // Helper function to create a mock file with custom size
+    const createMockFile = (name: string, type: string, size: number) => {
+      const file = new File([''], name, { type });
+      // Create a mock file object that mimics File but with settable size
+      return {
+        name: file.name,
+        type: file.type,
+        size: size,
+        lastModified: file.lastModified,
+        webkitRelativePath: '',
+        arrayBuffer: file.arrayBuffer.bind(file),
+        slice: file.slice.bind(file),
+        stream: file.stream.bind(file),
+        text: file.text.bind(file)
+      } as File;
+    };
+
     const testFiles = [
       // Valid standard image files
       new File([''], 'test.jpg', { type: 'image/jpeg' }),
@@ -175,10 +192,12 @@ export default function TestPhotoValidation() {
       new File([''], 'test.pdf', { type: 'application/pdf' }),
       new File([''], 'test.mp4', { type: 'video/mp4' }),
       
-      // Size tests (simulated)
-      Object.assign(new File([''], 'large.jpg', { type: 'image/jpeg' }), { size: 60 * 1024 * 1024 }), // 60MB - should fail
-      Object.assign(new File([''], 'good_size.jpg', { type: 'image/jpeg' }), { size: 25 * 1024 * 1024 }), // 25MB - should pass
-      Object.assign(new File([''], 'small.jpg', { type: 'image/jpeg' }), { size: 1024 }), // 1KB - should pass
+      // Size tests using mock files
+      createMockFile('large.jpg', 'image/jpeg', 60 * 1024 * 1024), // 60MB - should fail
+      createMockFile('good_size.jpg', 'image/jpeg', 25 * 1024 * 1024), // 25MB - should pass
+      createMockFile('small.jpg', 'image/jpeg', 1024), // 1KB - should pass
+      createMockFile('max_size.cr2', 'image/x-canon-cr2', 50 * 1024 * 1024), // 50MB exactly - should pass
+      createMockFile('over_limit.nef', 'image/x-nikon-nef', 51 * 1024 * 1024), // 51MB - should fail
     ];
 
     const results = testFiles.map(file => {
