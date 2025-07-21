@@ -13,7 +13,7 @@ import {
   Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/app/lib/utils';
 
 interface SidebarItem {
   href: string;

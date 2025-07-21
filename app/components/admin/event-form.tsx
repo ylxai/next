@@ -205,10 +205,9 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
         eventId,
         eventData: JSON.stringify(eventData, null, 2)
       });
-      
-      // More detailed error handling
+
+      // Improved error handling
       let errorMessage = 'Terjadi kesalahan saat menyimpan event';
-      
       if (error instanceof Error) {
         // Handle specific database errors
         if (error.message.includes('updated_at')) {
@@ -250,8 +249,8 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
     );
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+  return (  
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">    
       {/* Header */}
       <div className="border-b pb-4">
         <h2 className="text-xl font-semibold text-gray-900">

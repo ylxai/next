@@ -185,7 +185,7 @@ export function PhotoUpload({
 
       // Add all files to form data
       files.forEach(file => {
-        formData.append('files', file);
+        formData.append('files', file as unknown as Blob);
       });
 
       // Update files status to uploading

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
           results.failed.push({
             filename: file.name || 'unknown',
             original_filename: file.name || 'unknown.jpg',
-            error: validation.error
+            error: validation.error || 'Unknown validation error'
           });
           continue;
         }

@@ -225,10 +225,10 @@ export function FreePhotoUpload({
       setFiles(prev => prev.map(file => {
         const fileName = file.name || '';
         const successfulUpload = results.results?.successful?.find(
-          (s) => s && s.original_filename === fileName
+          (s: any) => s && s.original_filename === fileName
         );
         const failedUpload = results.results?.failed?.find(
-          (f) => f && (f.filename === fileName || f.original_filename === fileName)
+          (f: any) => f && (f.filename === fileName || f.original_filename === fileName)
         );
 
         if (successfulUpload) {
