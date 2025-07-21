@@ -180,6 +180,12 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
         throw new Error(response.error.message);
       }
 
+      // Defensive check for response data
+      if (!response.data || !response.data.id) {
+        console.error('Invalid response data:', response);
+        throw new Error('Server returned invalid data');
+      }
+
       setMessage({ 
         type: 'success', 
         text: mode === "create" ? 'Event berhasil dibuat!' : 'Event berhasil diupdate!' 
@@ -192,15 +198,26 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
 
     } catch (error) {
       console.error('Error saving event:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        mode,
+        eventId,
+        eventData: JSON.stringify(eventData, null, 2)
+      });
       
       // More detailed error handling
       let errorMessage = 'Terjadi kesalahan saat menyimpan event';
       
       if (error instanceof Error) {
-        errorMessage = error.message;
-        
         // Handle specific database errors
-        if (error.message.includes('violates check constraint')) {
+        if (error.message.includes('updated_at')) {
+          errorMessage = 'Database trigger error. Please contact administrator to run the database fix script.';
+        } else if (error.message.includes('violates foreign key constraint')) {
+          errorMessage = 'Data referensi tidak valid. Pastikan client yang dipilih masih aktif.';
+        } else if (error.message.includes('duplicate key')) {
+          errorMessage = 'Kode akses sudah digunakan. Silakan gunakan kode akses yang berbeda.';
+        } else if (error.message.includes('violates check constraint')) {
           errorMessage = 'Data tidak memenuhi kriteria validasi. Periksa kembali input Anda.';
         } else if (error.message.includes('violates foreign key constraint')) {
           errorMessage = 'Klien yang dipilih tidak valid. Silakan pilih klien lain atau kosongkan.';
@@ -208,6 +225,8 @@ export function EventForm({ mode, eventId, initialData }: EventFormProps) {
           errorMessage = 'Kode akses sudah digunakan. Silakan generate kode akses baru.';
         } else if (error.message.includes('permission denied')) {
           errorMessage = 'Anda tidak memiliki izin untuk membuat event. Pastikan Anda sudah login sebagai admin.';
+        } else {
+          errorMessage = error.message;
         }
       }
       
