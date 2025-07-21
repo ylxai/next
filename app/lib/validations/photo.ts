@@ -99,7 +99,7 @@ export const photoFavoriteSchema = z.object({
 export const photoDownloadTrackingSchema = z.object({
   photo_id: z.string().uuid('Valid photo ID required'),
   event_id: z.string().uuid('Valid event ID required'),
-  client_ip: z.string().ip().optional(),
+  client_ip: z.string().max(45).optional(), // Max length for IPv6
   user_agent: z.string().max(500).optional(),
   file_size: z.number().positive().optional(),
 });

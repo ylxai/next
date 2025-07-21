@@ -1,3 +1,5 @@
+"use client";
+
 import { PhotoUpload } from '@/app/components/admin/photo-upload';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';

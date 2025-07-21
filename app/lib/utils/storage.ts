@@ -123,6 +123,11 @@ export async function generateThumbnail(
   error?: string;
 }> {
   try {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return { success: false, error: 'Thumbnail generation only available in browser' };
+    }
+
     const supabase = createClient();
 
     // Create canvas for thumbnail generation
@@ -392,6 +397,15 @@ export async function extractImageMetadata(file: File): Promise<{
   type: string;
   lastModified: number;
 }> {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof Image === 'undefined') {
+    return {
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified
+    };
+  }
+
   const img = new Image();
   const imageLoadPromise = new Promise<{ width: number; height: number }>((resolve, reject) => {
     img.onload = () => resolve({ width: img.width, height: img.height });
