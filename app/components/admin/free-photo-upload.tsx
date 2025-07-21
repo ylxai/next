@@ -13,6 +13,7 @@ import {
   TrashIcon
 } from "lucide-react";
 import { validateImageFile } from "@/app/lib/validations/photo";
+import { useCacheInvalidation } from "@/app/lib/hooks/use-cached-data";
 
 interface FreePhotoUploadProps {
   onUploadComplete?: (results: UploadResults) => void;
@@ -75,6 +76,7 @@ export function FreePhotoUpload({
   const [autoApprove, setAutoApprove] = useState(true);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { invalidatePhotos, invalidateStats } = useCacheInvalidation();
 
   // Generate unique ID for file
   const generateFileId = () => Math.random().toString(36).substring(2, 15);
@@ -258,6 +260,12 @@ export function FreePhotoUpload({
           total: files.length,
           results: results.results
         });
+      }
+
+      // Invalidate cache to refresh data
+      if (results.results?.successful?.length > 0) {
+        invalidatePhotos();
+        invalidateStats();
       }
 
       // Auto-clear completed files after a delay

@@ -1,89 +1,23 @@
-import { createClient } from '@/app/lib/supabase/server';
+"use client";
+
 import { 
   Calendar, 
   Users, 
   Camera, 
-  TrendingUp,
-  Clock,
-  Star,
-  Upload
+  Upload,
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FreePhotoUpload } from '@/app/components/admin/free-photo-upload';
 import { PhotoGallery } from '@/app/components/admin/photo-gallery';
 import { AdminNav } from '@/app/components/admin/admin-nav';
+import { CachedDashboardStats } from '@/app/components/admin/cached-dashboard-stats';
+import { useCachedRecentEvents } from '@/app/lib/hooks/use-cached-data';
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-  
-  // Fetch counts from database
-  const { count: eventsCount } = await supabase.from('events').select('*', { count: 'exact', head: true });
-  const { count: clientsCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).eq('role', 'client');
-  const { count: photosCount } = await supabase.from('photos').select('*', { count: 'exact', head: true });
-  
-  // Fetch additional stats
-  const { count: activeEventsCount } = await supabase.from('events').select('*', { count: 'exact', head: true }).eq('status', 'active');
-  const { count: pendingPhotosCount } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('is_approved', false);
-  const { count: featuredPhotosCount } = await supabase.from('photos').select('*', { count: 'exact', head: true }).eq('is_featured', true);
-  
-  // Fetch recent events
-  const { data: recentEvents } = await supabase
-    .from('events')
-    .select('id, title, date, status')
-    .order('created_at', { ascending: false })
-    .limit(5);
-  
-  const statsCards = [
-    {
-      title: 'Total Events',
-      value: eventsCount || 0,
-      icon: Calendar,
-      color: 'bg-blue-500',
-      lightColor: 'bg-blue-50',
-      textColor: 'text-blue-600'
-    },
-    {
-      title: 'Active Events',
-      value: activeEventsCount || 0,
-      icon: TrendingUp,
-      color: 'bg-green-500',
-      lightColor: 'bg-green-50',
-      textColor: 'text-green-600'
-    },
-    {
-      title: 'Total Clients',
-      value: clientsCount || 0,
-      icon: Users,
-      color: 'bg-purple-500',
-      lightColor: 'bg-purple-50',
-      textColor: 'text-purple-600'
-    },
-    {
-      title: 'Total Photos',
-      value: photosCount || 0,
-      icon: Camera,
-      color: 'bg-orange-500',
-      lightColor: 'bg-orange-50',
-      textColor: 'text-orange-600'
-    },
-    {
-      title: 'Pending Review',
-      value: pendingPhotosCount || 0,
-      icon: Clock,
-      color: 'bg-yellow-500',
-      lightColor: 'bg-yellow-50',
-      textColor: 'text-yellow-600'
-    },
-    {
-      title: 'Featured Photos',
-      value: featuredPhotosCount || 0,
-      icon: Star,
-      color: 'bg-pink-500',
-      lightColor: 'bg-pink-50',
-      textColor: 'text-pink-600'
-    }
-  ];
+export default function Dashboard() {
+  // Use cached recent events with React Query
+  const { data: recentEvents = [], isLoading: eventsLoading } = useCachedRecentEvents(5);
   
   return (
     <div className="space-y-8">
@@ -96,28 +30,8 @@ export default async function Dashboard() {
         <p className="text-gray-600 mt-1">Welcome to your photo studio management panel</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {statsCards.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-2">{stat.value}</p>
-                  </div>
-                  <div className={`w-12 h-12 ${stat.lightColor} rounded-lg flex items-center justify-center`}>
-                    <Icon className={`w-6 h-6 ${stat.textColor}`} />
-                  </div>
-                </div>
-              </div>
-              <div className={`h-2 ${stat.color}`}></div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Stats Grid - Using cached data */}
+      <CachedDashboardStats />
 
               {/* Free Photo Upload */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -153,7 +67,20 @@ export default async function Dashboard() {
               </div>
             </div>
             <div className="p-6">
-              {recentEvents && recentEvents.length > 0 ? (
+              {eventsLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex items-center space-x-3 py-3 animate-pulse">
+                      <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
+                        <div className="bg-gray-200 h-3 w-1/2 rounded"></div>
+                      </div>
+                      <div className="bg-gray-200 h-6 w-16 rounded-full"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentEvents && recentEvents.length > 0 ? (
                 <div className="space-y-4">
                   {recentEvents.map((event) => (
                     <div key={event.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">

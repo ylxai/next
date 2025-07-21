@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Camera, 
@@ -9,12 +9,11 @@ import {
   Clock, 
   Eye,
   Download,
-  Trash2,
   Grid3X3,
-  List,
-  Filter
+  List
 } from 'lucide-react';
 import { DateOnly } from '@/app/components/ui/date-display';
+import { useCachedPhotos } from '@/app/lib/hooks/use-cached-data';
 
 interface Photo {
   id: string;
@@ -41,45 +40,17 @@ interface PhotoGalleryProps {
 }
 
 export function PhotoGallery({ className = '', maxPhotos = 20 }: PhotoGalleryProps) {
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filter, setFilter] = useState<'all' | 'featured' | 'pending' | 'approved'>('all');
 
-  // Fetch photos
-  const fetchPhotos = async () => {
-    try {
-      setLoading(true);
-      
-      let url = `/api/photos?limit=${maxPhotos}&sort_by=upload_date&sort_order=desc`;
-      
-      // Add filter parameters
-      if (filter === 'featured') {
-        url += '&is_featured=true';
-      } else if (filter === 'pending') {
-        url += '&is_approved=false';
-      } else if (filter === 'approved') {
-        url += '&is_approved=true';
-      }
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch photos');
-      }
-
-      const data = await response.json();
-      setPhotos(data.photos || []);
-    } catch (error) {
-      console.error('Error fetching photos:', error);
-      setPhotos([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPhotos();
-  }, [filter, maxPhotos]);
+  // Use cached photos with React Query
+  const { 
+    data: photos = [], 
+    isLoading: loading
+  } = useCachedPhotos({ 
+    limit: maxPhotos, 
+    filter: filter === 'all' ? undefined : filter 
+  });
 
   // Format file size
   const formatFileSize = (bytes: number): string => {
