@@ -4,7 +4,7 @@
 
 ### **SCRIPT UTAMA (WAJIB DIJALANKAN PERTAMA)**
 
-#### **1. `01_complete_photo_system.sql`** 
+#### **1. `01_complete_photo_system.sql`** ⭐
 ```bash
 # Script ini mencakup SEMUA yang dibutuhkan:
 ✅ Membuat tabel users (jika belum ada)
@@ -17,7 +17,25 @@
 ✅ Membuat views untuk statistik
 ```
 
-**JALANKAN SCRIPT INI PERTAMA KALI DI SUPABASE SQL EDITOR**
+### **SCRIPT TAMBAHAN (JIKA ADA MASALAH)**
+
+#### **2. `02_create_admin_user.sql`** 👤
+```bash
+# Membuat admin user dan sample event untuk testing
+✅ Admin user dengan role admin
+✅ Sample event untuk testing upload
+```
+
+#### **3. `03_fix_storage_bucket.sql`** 🔧
+```bash
+# Fix masalah bucket tidak terdeteksi (COMMON ISSUE)
+✅ Fix RLS pada storage.buckets
+✅ Recreate bucket dengan settings benar
+✅ Fix storage policies
+✅ Grant permissions yang benar
+```
+
+**JALANKAN SCRIPT SESUAI URUTAN DAN KEBUTUHAN**
 
 ---
 
@@ -93,13 +111,36 @@ Setelah menjalankan script, Anda akan memiliki:
 
 ## 🛠️ TROUBLESHOOTING
 
-### **Error: "relation does not exist"**
+### **❌ "Photos bucket not found" (MOST COMMON)**
 ```bash
-# Jalankan ulang script utama:
+Problem: Bucket ada di Dashboard tapi app tidak detect
+Cause:   RLS pada storage.buckets table
+Fix:     Jalankan script 03_fix_storage_bucket.sql
+```
+
+### **❌ "Cannot read properties of undefined (reading 'split')"**
+```bash
+Problem: File validation error saat upload
+Cause:   File object invalid atau corrupt
+Fix:     Refresh page, coba file lain, atau restart browser
+```
+
+### **❌ "Upload failed: 0 successful, 1 failed"**
+```bash
+Problem: Upload process gagal
+Steps:   
+1. Check /admin/photos/debug - lihat mana yang fail
+2. Jalankan 03_fix_storage_bucket.sql jika storage fail  
+3. Jalankan 01_complete_photo_system.sql jika table fail
+```
+
+### **❌ "relation does not exist"**
+```bash
+# Database table belum dibuat:
 01_complete_photo_system.sql
 ```
 
-### **Error: "permission denied for table"**
+### **❌ "permission denied for table"**
 ```sql
 -- Grant permissions manual:
 GRANT ALL ON photos TO authenticated;
@@ -107,13 +148,10 @@ GRANT ALL ON photo_downloads TO authenticated;
 GRANT ALL ON photo_favorites TO authenticated;
 ```
 
-### **Error: "bucket already exists"**
-```sql
--- Update bucket settings:
-UPDATE storage.buckets 
-SET file_size_limit = 52428800,
-    allowed_mime_types = ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/tiff', 'application/octet-stream']
-WHERE id = 'photos';
+### **❌ "Event not found" saat upload**
+```bash
+# Buat admin user dan sample event:
+02_create_admin_user.sql
 ```
 
 ---

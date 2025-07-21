@@ -197,6 +197,37 @@ const RAW_EXTENSIONS = {
 export function validateImageFile(file: File): { isValid: boolean; error?: string } {
   const maxSize = 50 * 1024 * 1024; // 50MB
   
+  // Check if file object is valid
+  if (!file) {
+    return {
+      isValid: false,
+      error: 'No file provided'
+    };
+  }
+
+  // Check if file has a name
+  if (!file.name || typeof file.name !== 'string') {
+    return {
+      isValid: false,
+      error: 'File name is required'
+    };
+  }
+
+  // Check file size first
+  if (!file.size || file.size <= 0) {
+    return {
+      isValid: false,
+      error: 'File appears to be empty'
+    };
+  }
+
+  if (file.size > maxSize) {
+    return {
+      isValid: false,
+      error: 'File size must be less than 50MB'
+    };
+  }
+
   // Standard image MIME types
   const allowedImageTypes = [
     'image/jpeg', 
@@ -229,15 +260,7 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
 
   const allAllowedTypes = [...allowedImageTypes, ...allowedRawTypes];
 
-  // Check file size first
-  if (file.size > maxSize) {
-    return {
-      isValid: false,
-      error: 'File size must be less than 50MB',
-    };
-  }
-
-  // Get file extension
+  // Get file extension safely
   const fileExtension = file.name.split('.').pop()?.toLowerCase();
   
   // Check if it's a known RAW extension
