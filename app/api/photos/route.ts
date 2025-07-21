@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const queryResult = photoQuerySchema.safeParse(Object.fromEntries(searchParams));
     if (!queryResult.success) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: queryResult.error.errors },
+        { error: 'Invalid query parameters', details: queryResult.error.flatten().fieldErrors },  
         { status: 400 }
       );
     }
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
 
     const results: {
       successful: any[];
-      failed: Array<{ filename: string; error: string }>;
+      failed: Array<{ filename: string; original_filename: string; error: string }>;
     } = {
       successful: [],
       failed: []
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
         if (!uploadResult.success || !uploadResult.data) {
           results.failed.push({
             filename: file.name || 'unknown',
-            original_filename: file.name || 'unknown.jpg',
+            original_filename: file.name || 'unknown.jpg', 
             error: uploadResult.error || 'Upload failed'
           });
           continue;
@@ -302,7 +302,7 @@ export async function PATCH(request: NextRequest) {
     
     if (!validationResult.success) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: validationResult.error.errors },
+        { error: 'Invalid request data', details: validationResult.error.flatten().fieldErrors }, 
         { status: 400 }
       );
     }

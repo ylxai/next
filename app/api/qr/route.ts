@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import QRCode from 'qrcode';
+import QRCode, { QRCodeToBufferOptions } from 'qrcode';
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
       });
     } else {
       // Generate PNG QR code
-      const buffer = await QRCode.toBuffer(text, options);
+      const buffer = await QRCode.toBuffer(text, options as unknown as QRCodeToBufferOptions);     
 
-      return new NextResponse(buffer, {
+      return new NextResponse(buffer, {   
         headers: {
           'Content-Type': 'image/png',
           'Cache-Control': 'public, max-age=31536000',
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (format === 'svg') {
-      const svgString = await QRCode.toString(text, {
+      const svgString = QRCode.toString(text, {
         ...qrOptions,
         type: 'svg' as const
       });
@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
         format: 'base64'
       });
     } else {
-      const buffer = await QRCode.toBuffer(text, qrOptions);
-      const base64 = buffer.toString('base64');
+      const buffer = await QRCode.toBuffer(text, qrOptions) as unknown as Buffer;
+      const base64 = buffer?.toString('base64') ?? '';
 
       return NextResponse.json({
         success: true,
