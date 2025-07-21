@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PhotoUpload } from "./photo-upload";
+import { DateOnly } from "@/components/ui/date-display";
 
 interface PhotoUploadSectionProps {
   events: Array<{
@@ -28,7 +29,7 @@ export function PhotoUploadSection({ events }: PhotoUploadSectionProps) {
         >
           {events.map((event) => (
             <option key={event.id} value={event.id}>
-              {event.title} - {new Date(event.date).toLocaleDateString()} ({event.status})
+              {event.title} - {event.date} ({event.status})
             </option>
           ))}
         </select>

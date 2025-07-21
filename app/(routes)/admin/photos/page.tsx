@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/app/lib/supabase/server";
 import Link from "next/link";
 import { PhotoUploadSection } from "@/app/components/admin/photo-upload-section";
+import { DateOnly } from "@/components/ui/date-display";
 
 export default async function AdminPhotosPage() {
   const supabase = await createClient();
@@ -71,7 +72,7 @@ export default async function AdminPhotosPage() {
                   <p className="text-sm font-medium truncate">{photo.original_filename}</p>
                   <p className="text-xs text-gray-500">{photo.events?.title}</p>
                   <p className="text-xs text-gray-400">
-                    {new Date(photo.created_at).toLocaleDateString()}
+                    <DateOnly date={photo.created_at} />
                   </p>
                   <div className="flex space-x-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${

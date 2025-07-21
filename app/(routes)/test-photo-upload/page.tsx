@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
+import { DateOnly } from '@/components/ui/date-display';
 
 interface Event {
   id: string;
@@ -170,7 +171,7 @@ export default function TestPhotoUpload() {
                 >
                   {events.map((event) => (
                     <option key={event.id} value={event.id}>
-                      {event.title} - {new Date(event.date).toLocaleDateString()} ({event.status})
+                      {event.title} - {event.date} ({event.status})
                     </option>
                   ))}
                 </select>
@@ -185,7 +186,7 @@ export default function TestPhotoUpload() {
                       <div className="text-blue-800 text-sm space-y-1">
                         <p><strong>ID:</strong> {selected.id}</p>
                         <p><strong>Title:</strong> {selected.title}</p>
-                        <p><strong>Date:</strong> {new Date(selected.date).toLocaleDateString()}</p>
+                        <p><strong>Date:</strong> <DateOnly date={selected.date} /></p>
                         <p><strong>Access Code:</strong> {selected.access_code}</p>
                         <p><strong>Status:</strong> {selected.status}</p>
                       </div>
