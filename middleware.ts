@@ -1,16 +1,39 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'; 
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
-  
-  const { data: { session } } = await supabase.auth.getSession();
+  let supabaseResponse = NextResponse.next({
+    request: req,
+  });
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return req.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({
+            request: req,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
+
+  // Get authenticated user - more secure than getSession()
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
   if (req.nextUrl.pathname.startsWith('/admin')) {
-    // Jika tidak ada session, redirect ke login
-    if (!session) {
+    // Jika tidak ada user atau error, redirect ke login
+    if (userError || !user) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
     
@@ -18,7 +41,7 @@ export async function middleware(req: NextRequest) {
     const { data: userData, error } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
     
     // Jika bukan admin atau error, redirect ke login
@@ -27,7 +50,7 @@ export async function middleware(req: NextRequest) {
     }
   }
   
-  return res;
+  return supabaseResponse;
 }
 
 export const config = {

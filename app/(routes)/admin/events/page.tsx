@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 import { createClient } from "@/app/lib/supabase/server"; 
 import Link from "next/link";
+import { formatDateWithMonth } from "@/app/lib/utils/date";
 
 export default async function EventsPage() {
   const supabase = await createClient();
@@ -36,7 +37,7 @@ export default async function EventsPage() {
                   <tr key={event.id} className="border-b">
                     <td className="py-3 px-4">{event.title}</td>
                     <td className="py-3 px-4">
-                      {new Date(event.date).toLocaleDateString()}
+                      {formatDateWithMonth(event.date)}
                     </td>
                     <td className="py-3 px-4">{event.access_code}</td>
                     <td className="py-3 px-4">
