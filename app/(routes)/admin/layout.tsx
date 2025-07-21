@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/app/lib/supabase/server'; 
+import { createClient } from '@/app/lib/supabase/server';
+import { AdminSidebar } from '@/app/components/admin/admin-sidebar';
 
 export default async function AdminLayout({
   children,
@@ -15,17 +16,13 @@ export default async function AdminLayout({
   }
   
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-64 bg-slate-800 text-white p-4">
-        <div className="text-xl font-bold mb-6">Admin Panel</div>
-        <nav className="space-y-2">
-          <a href="/admin/dashboard" className="block p-2 hover:bg-slate-700 rounded">Dashboard</a>
-          <a href="/admin/events" className="block p-2 hover:bg-slate-700 rounded">Events</a>
-          <a href="/admin/clients" className="block p-2 hover:bg-slate-700 rounded">Clients</a>
-          <a href="/admin/photos" className="block p-2 hover:bg-slate-700 rounded">Photos</a>
-        </nav>
-      </aside>
-      <main className="flex-1 p-6">{children}</main>
+    <div className="flex min-h-screen bg-gray-50">
+      <AdminSidebar />
+      <main className="flex-1 p-6 overflow-hidden">
+        <div className="max-w-full">
+          {children}
+        </div>
+      </main>
     </div>
   );
 } 

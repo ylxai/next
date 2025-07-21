@@ -1,4 +1,4 @@
-import { QRCode } from '@/components/ui/qr-code';
+import { QRCode } from '@/app/components/ui/qr-code';
 
 export default function TestQRPage() {
   const testUrl = 'http://localhost:3000/event/test-event-123';

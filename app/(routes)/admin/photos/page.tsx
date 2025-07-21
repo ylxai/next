@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/app/lib/supabase/server";
 import Link from "next/link";
 import { PhotoUploadSection } from "@/app/components/admin/photo-upload-section";
-import { DateOnly } from "@/components/ui/date-display";
+import { DateOnly } from "@/app/components/ui/date-display";
 
 export default async function AdminPhotosPage() {
   const supabase = await createClient();

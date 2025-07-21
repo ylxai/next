@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { QRCode } from "@/components/ui/qr-code";
+import { QRCode } from "@/app/components/ui/qr-code";
 import { 
   CopyIcon, 
   MailIcon, 

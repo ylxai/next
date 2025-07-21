@@ -1,6 +1,6 @@
 import { createClient } from '@/app/lib/supabase/server';
 import { Button } from '@/components/ui/button';
-import { QRCode } from '@/components/ui/qr-code';
+import { QRCode } from '@/app/components/ui/qr-code';
 import Link from 'next/link';
 import { CalendarIcon, ClockIcon, MapPinIcon, UsersIcon, DollarSignIcon } from 'lucide-react';
 import { notFound } from 'next/navigation';

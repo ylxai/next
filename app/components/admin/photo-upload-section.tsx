@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PhotoUpload } from "./photo-upload";
-import { DateOnly } from "@/components/ui/date-display";
+import { DateOnly } from "@/app/components/ui/date-display";
 
 interface PhotoUploadSectionProps {
   events: Array<{

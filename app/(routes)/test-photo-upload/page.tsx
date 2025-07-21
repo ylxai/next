@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
-import { DateOnly } from '@/components/ui/date-display';
+import { DateOnly } from '@/app/components/ui/date-display';
 
 interface Event {
   id: string;

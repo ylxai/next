@@ -22,7 +22,22 @@ interface PhotoUploadProps {
   disabled?: boolean;
 }
 
-interface FileWithPreview extends File {
+interface FileWithPreview {
+  // File properties
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number;
+  webkitRelativePath: string;
+  
+  // File methods
+  arrayBuffer: () => Promise<ArrayBuffer>;
+  bytes?: () => Promise<Uint8Array>;
+  slice: (start?: number, end?: number, contentType?: string) => Blob;
+  stream: () => ReadableStream<Uint8Array>;
+  text: () => Promise<string>;
+  
+  // Custom properties
   id: string;
   preview: string;
   status: 'pending' | 'uploading' | 'completed' | 'error';
@@ -58,12 +73,26 @@ export function PhotoUpload({
   // Create file preview
   const createFilePreview = useCallback((file: File): FileWithPreview => {
     return {
-      ...file,
+      // Explicitly copy File properties
+      name: file.name || 'unknown.jpg',
+      size: file.size || 0,
+      type: file.type || 'image/jpeg',
+      lastModified: file.lastModified || Date.now(),
+      webkitRelativePath: file.webkitRelativePath || '',
+      
+      // Copy File methods
+      arrayBuffer: file.arrayBuffer.bind(file),
+      bytes: file.bytes?.bind(file),
+      slice: file.slice.bind(file),
+      stream: file.stream.bind(file),
+      text: file.text.bind(file),
+      
+      // Add our custom properties
       id: generateFileId(),
       preview: URL.createObjectURL(file),
-      status: 'pending',
+      status: 'pending' as const,
       progress: 0
-    };
+    } as FileWithPreview;
   }, []);
 
   // Validate and add files
@@ -71,12 +100,16 @@ export function PhotoUpload({
     const validatedFiles: FileWithPreview[] = [];
     
     for (const file of newFiles) {
+      const fileName = file.name || 'unknown file';
       const validation = validateImageFile(file);
       if (validation.isValid) {
         validatedFiles.push(createFilePreview(file));
       } else {
         // Show validation error (you could add toast notification here)
-        console.warn(`File ${file.name} rejected: ${validation.error}`);
+        console.warn(`File "${fileName}" rejected: ${validation.error}`);
+        
+        // TODO: Add toast notification library for better UX
+        // For now, validation errors are logged to console
       }
     }
 
@@ -284,11 +317,18 @@ export function PhotoUpload({
 
   // Format file size
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    // Handle invalid inputs
+    if (!bytes || bytes <= 0 || isNaN(bytes)) return '0 Bytes';
+    
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const index = Math.min(i, sizes.length - 1); // Prevent array out of bounds
+    
+    const value = bytes / Math.pow(k, index);
+    const formattedValue = isNaN(value) ? 0 : Number(value.toFixed(2));
+    
+    return `${formattedValue} ${sizes[index]}`;
   };
 
   return (
@@ -416,11 +456,11 @@ export function PhotoUpload({
                 <div className="space-y-2">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {file.name}
+                      <p className="text-sm font-medium text-gray-900 truncate" title={file.name}>
+                        {file.name || 'Unknown filename'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatFileSize(file.size)}
+                        {formatFileSize(file.size || 0)}
                       </p>
                     </div>
                     
