@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const photoFileSchema = z.object({
   name: z.string().min(1, 'Filename required'),
   size: z.number().max(50 * 1024 * 1024, 'File size must be less than 50MB'),
-  type: z.string().regex(/^image\/(jpeg|jpg|png|webp|gif|x-canon-cr2|x-canon-crw|x-nikon-nef|x-sony-arw|x-adobe-dng|x-olympus-orf|x-panasonic-rw2|x-fuji-raf|x-kodak-dcr|x-minolta-mrw|x-pentax-pef|x-sigma-x3f|tiff)$|^application\/octet-stream$/, 'Only image and RAW files are allowed'),
+  type: z.string().regex(/^image\/(jpeg|jpg|x-canon-cr2|x-canon-cr3|x-canon-crw|x-nikon-nef|x-nikon-nrw|x-sony-arw|x-sony-srf|x-sony-sr2|x-adobe-dng|x-olympus-orf|x-panasonic-rw2|x-panasonic-raw|x-fuji-raf|x-pentax-pef|x-pentax-ptx|x-sigma-x3f|x-kodak-dcr|x-kodak-kdc|x-minolta-mrw|x-leica-rwl|x-kodak-dcs|x-hasselblad-3fr|x-mamiya-mef|x-phaseone-iiq|tiff)$|^application\/octet-stream$/, 'Only JPEG, JPG, and RAW files are allowed'),
 });
 
 // Photo metadata schema
@@ -206,10 +206,10 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
   }
 
   // Check if file has a name
-  if (!file.name || typeof file.name !== 'string') {
+  if (!file.name || typeof file.name !== 'string' || file.name.trim() === '') {
     return {
       isValid: false,
-      error: 'File name is required'
+      error: 'File name is required and cannot be empty'
     };
   }
 
@@ -228,13 +228,10 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
     };
   }
 
-  // Standard image MIME types
+  // Standard JPEG/JPG MIME types ONLY
   const allowedImageTypes = [
     'image/jpeg', 
-    'image/jpg', 
-    'image/png', 
-    'image/webp', 
-    'image/gif'
+    'image/jpg'
   ];
   
   // RAW file MIME types
@@ -260,19 +257,84 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
 
   const allAllowedTypes = [...allowedImageTypes, ...allowedRawTypes];
 
-  // Get file extension safely
-  const fileExtension = file.name.split('.').pop()?.toLowerCase();
-  
+  // Get file extension safely with additional validation
+  const fileName = file.name.trim();
+  if (!fileName.includes('.')) {
+    return {
+      isValid: false,
+      error: 'File must have a valid extension (.jpg, .jpeg, .cr2, .nef, etc.)'
+    };
+  }
+
+  const fileExtension = fileName.split('.').pop()?.toLowerCase();
+  if (!fileExtension) {
+    return {
+      isValid: false,
+      error: 'Could not determine file extension'
+    };
+  }
+
+  // Allowed file extensions (JPEG/JPG and RAW only)
+  const allowedExtensions = [
+    // JPEG/JPG
+    'jpg', 'jpeg',
+    // Canon RAW
+    'cr2', 'cr3', 'crw',
+    // Nikon RAW
+    'nef', 'nrw',
+    // Sony RAW
+    'arw', 'srf', 'sr2',
+    // Adobe RAW
+    'dng',
+    // Olympus RAW
+    'orf',
+    // Panasonic RAW
+    'rw2', 'raw',
+    // Fuji RAW
+    'raf',
+    // Pentax RAW
+    'pef', 'ptx',
+    // Sigma RAW
+    'x3f',
+    // Kodak RAW
+    'dcr', 'kdc',
+    // Minolta RAW
+    'mrw',
+    // Leica RAW
+    'rwl', 'dcs',
+    // Hasselblad RAW
+    '3fr',
+    // Mamiya RAW
+    'mef',
+    // Phase One RAW
+    'iiq',
+    // TIFF (some RAW)
+    'tiff', 'tif'
+  ];
+
+  // Check if file extension is allowed
+  if (!allowedExtensions.includes(fileExtension)) {
+    return {
+      isValid: false,
+      error: `File extension '.${fileExtension}' not supported. Only JPEG (.jpg, .jpeg) and RAW files (.cr2, .nef, .arw, .dng, etc.) are allowed`
+    };
+  }
+
   // Check if it's a known RAW extension
-  if (fileExtension && RAW_EXTENSIONS[fileExtension as keyof typeof RAW_EXTENSIONS]) {
+  if (RAW_EXTENSIONS[fileExtension as keyof typeof RAW_EXTENSIONS]) {
     return { isValid: true };
   }
 
-  // Check MIME type for standard images and recognized RAW types
+  // Check MIME type for JPEG and recognized RAW types
   if (!allAllowedTypes.includes(file.type)) {
+    // If extension is valid but MIME type is not recognized, still allow (for RAW files)
+    if (allowedExtensions.includes(fileExtension)) {
+      return { isValid: true };
+    }
+    
     return {
       isValid: false,
-      error: 'Only JPG, JPEG, PNG, and RAW files (CR2, NEF, ARW, DNG, ORF, RW2, RAF, PEF, X3F, etc.) are allowed',
+      error: 'Only JPEG, JPG, and RAW files are allowed',
     };
   }
 

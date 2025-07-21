@@ -35,6 +35,15 @@
 ✅ Grant permissions yang benar
 ```
 
+#### **4. `04_update_file_restrictions.sql`** 🚫
+```bash
+# Restrict file types to JPEG, JPG, and RAW only
+✅ Update bucket allowed MIME types
+✅ Add database constraints for file validation
+✅ Block PNG, WebP, GIF, and other formats
+✅ Enforce file extension validation
+```
+
 **JALANKAN SCRIPT SESUAI URUTAN DAN KEBUTUHAN**
 
 ---
@@ -61,7 +70,12 @@
    - Ganti `admin@photostudio.com` dengan email Anda
 5. Jalankan script `02_create_admin_user.sql` di SQL Editor
 
-### **Step 4: Verifikasi Setup**
+### **Step 4: Enforce File Restrictions (OPTIONAL)**
+Jika Anda ingin memblok PNG, WebP, GIF dan hanya izinkan JPEG + RAW:
+1. Jalankan script `04_update_file_restrictions.sql` di SQL Editor
+2. Script ini akan menambah database constraints untuk validasi file
+
+### **Step 5: Verifikasi Setup**
 Jalankan query ini untuk memastikan semua berhasil:
 ```sql
 -- Check tables
@@ -76,6 +90,11 @@ SELECT id, email, role FROM users WHERE role = 'admin';
 
 -- Check test event
 SELECT id, title, access_code FROM events WHERE access_code = 'WEDDING2024';
+
+-- Check file restrictions (if applied)
+SELECT constraint_name, check_clause 
+FROM information_schema.check_constraints 
+WHERE constraint_name LIKE 'photos_%_check';
 ```
 
 ---
@@ -93,7 +112,7 @@ Setelah menjalankan script, Anda akan memiliki:
 
 ### **✅ Storage Setup:**
 - Bucket `photos` dengan limit 50MB
-- Support JPG, PNG, RAW files
+- Support JPEG, JPG, RAW files only (PNG/WebP blocked)
 - Policies untuk read/write
 
 ### **✅ Security:**
@@ -118,11 +137,21 @@ Cause:   RLS pada storage.buckets table
 Fix:     Jalankan script 03_fix_storage_bucket.sql
 ```
 
+### **❌ "Upload failed: File name is required"**
+```bash
+Problem: File validation error - file name kosong/undefined
+Cause:   File object corrupt atau browser issue
+Fix:     1. Refresh page dan coba lagi
+         2. Pastikan file memiliki nama yang valid
+         3. Coba drag-drop instead of click upload
+         4. Restart browser jika masih error
+```
+
 ### **❌ "Cannot read properties of undefined (reading 'split')"**
 ```bash
 Problem: File validation error saat upload
-Cause:   File object invalid atau corrupt
-Fix:     Refresh page, coba file lain, atau restart browser
+Cause:   File object invalid atau corrupt  
+Fix:     Same as "File name is required" error above
 ```
 
 ### **❌ "Upload failed: 0 successful, 1 failed"**

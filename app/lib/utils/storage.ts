@@ -7,10 +7,7 @@ export const STORAGE_CONFIG = {
   MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
   ALLOWED_MIME_TYPES: [
     'image/jpeg',
-    'image/jpg', 
-    'image/png',
-    'image/webp',
-    'image/gif'
+    'image/jpg'
   ],
   THUMBNAIL_SIZES: [150, 300, 600, 1200],
   QUALITY: {

@@ -171,10 +171,9 @@ export default function TestPhotoValidation() {
     };
 
     const testFiles = [
-      // Valid standard image files
+      // Valid JPEG files
       new File([''], 'test.jpg', { type: 'image/jpeg' }),
-      new File([''], 'test.png', { type: 'image/png' }),
-      new File([''], 'test.webp', { type: 'image/webp' }),
+      new File([''], 'photo.jpeg', { type: 'image/jpeg' }),
       
       // Valid RAW files
       new File([''], 'canon.cr2', { type: 'image/x-canon-cr2' }),
@@ -187,7 +186,10 @@ export default function TestPhotoValidation() {
       // RAW files with fallback MIME type
       new File([''], 'raw_fallback.cr2', { type: 'application/octet-stream' }),
       
-      // Invalid files
+      // Invalid files (now includes PNG, WebP, GIF)
+      new File([''], 'test.png', { type: 'image/png' }),
+      new File([''], 'test.webp', { type: 'image/webp' }),
+      new File([''], 'test.gif', { type: 'image/gif' }),
       new File([''], 'test.txt', { type: 'text/plain' }),
       new File([''], 'test.pdf', { type: 'application/pdf' }),
       new File([''], 'test.mp4', { type: 'video/mp4' }),

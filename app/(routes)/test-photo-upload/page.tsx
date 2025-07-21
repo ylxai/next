@@ -244,7 +244,7 @@ export default function TestPhotoUpload() {
               <ul className="text-sm text-gray-600 space-y-1">
                 <li>• Drag & drop multiple files</li>
                 <li>• File validation (size, type)</li>
-                <li>• Supports JPG, PNG, RAW files</li>
+                <li>• Supports JPEG, JPG, RAW files only</li>
                 <li>• 50MB maximum file size</li>
                 <li>• Real-time upload progress</li>
                 <li>• Image preview before upload</li>
