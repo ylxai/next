@@ -40,7 +40,8 @@ export async function GET() {
     const testPhoto = {
       filename: 'test-auth-' + Date.now() + '.jpg',
       original_filename: 'test-auth.jpg',
-      file_path: 'test/auth-test.jpg',
+      file_path: 'test/auth-test.jpg', // Keep for backward compatibility
+      storage_path: 'test/auth-test.jpg', // Add the required column
       file_size: 1024,
       mime_type: 'image/jpeg',
       uploaded_by: user.id,
@@ -112,7 +113,8 @@ export async function POST(request: NextRequest) {
     const photoData = {
       filename: `${testFile}-${Date.now()}.jpg`,
       original_filename: `${testFile}.jpg`,
-      file_path: `test/${testFile}.jpg`,
+      file_path: `test/${testFile}.jpg`, // Keep for backward compatibility
+      storage_path: `test/${testFile}.jpg`, // Add the required column
       file_size: 1024,
       mime_type: 'image/jpeg',
       uploaded_by: user.id, // Critical for RLS
