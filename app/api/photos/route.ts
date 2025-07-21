@@ -4,7 +4,9 @@ import {
   photoQuerySchema, 
   createPhotoSchema,
   updatePhotoSchema,
-  bulkPhotoOperationSchema
+  bulkPhotoOperationSchema,
+  generateSafeFilename,
+  validateImageFile
 } from '@/app/lib/validations/photo';
 import { uploadPhotoToStorage, extractImageMetadata } from '@/app/lib/utils/storage';
 
@@ -192,7 +194,8 @@ export async function POST(request: NextRequest) {
 
         if (!uploadResult.success || !uploadResult.data) {
           results.failed.push({
-            filename: file.name,
+            filename: file.name || 'unknown',
+            original_filename: file.name || 'unknown.jpg',
             error: uploadResult.error || 'Upload failed'
           });
           continue;
@@ -202,10 +205,13 @@ export async function POST(request: NextRequest) {
         const metadata = await extractImageMetadata(file);
 
         // Create photo record in database
+        const safeFilename = uploadResult.data.path.split('/').pop() || generateSafeFilename(file.name || 'unknown');
+        const safeOriginalFilename = file.name || 'unknown.jpg';
+        
         const photoData = {
           event_id: eventId,
-          filename: uploadResult.data.path.split('/').pop() || file.name,
-          original_filename: file.name,
+          filename: safeFilename,
+          original_filename: safeOriginalFilename,
           file_path: uploadResult.data.path,
           file_size: file.size,
           mime_type: file.type,
@@ -233,7 +239,8 @@ export async function POST(request: NextRequest) {
         if (dbError) {
           console.error('Database error:', dbError);
           results.failed.push({
-            filename: file.name,
+            filename: file.name || 'unknown',
+            original_filename: file.name || 'unknown.jpg',
             error: 'Failed to save photo record'
           });
           continue;
@@ -241,9 +248,10 @@ export async function POST(request: NextRequest) {
 
         results.successful.push(photo);
       } catch (error) {
-        console.error('Error processing file:', file.name, error);
+        console.error('Error processing file:', file.name || 'unknown', error);
         results.failed.push({
-          filename: file.name,
+          filename: file.name || 'unknown',
+          original_filename: file.name || 'unknown.jpg',
           error: error instanceof Error ? error.message : 'Processing failed'
         });
       }

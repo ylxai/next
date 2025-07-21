@@ -69,7 +69,9 @@ export default async function AdminPhotosPage() {
                   <span className="text-gray-400 text-sm">No Preview</span>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-medium truncate">{photo.original_filename}</p>
+                  <p className="text-sm font-medium truncate">
+                    {photo.original_filename || 'Unknown filename'}
+                  </p>
                   <p className="text-xs text-gray-500">{photo.events?.title}</p>
                   <p className="text-xs text-gray-400">
                     <DateOnly date={photo.created_at} />

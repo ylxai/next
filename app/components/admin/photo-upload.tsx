@@ -205,11 +205,12 @@ export function PhotoUpload({
 
       // Update file statuses based on results
       setFiles(prev => prev.map(file => {
+        const fileName = file.name || '';
         const successfulUpload = results.results?.successful?.find(
-          (s: any) => s.original_filename === file.name
+          (s: any) => s && s.original_filename === fileName
         );
         const failedUpload = results.results?.failed?.find(
-          (f: any) => f.filename === file.name
+          (f: any) => f && (f.filename === fileName || f.original_filename === fileName)
         );
 
         if (successfulUpload) {

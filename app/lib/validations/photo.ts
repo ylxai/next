@@ -366,21 +366,50 @@ export function validateImageDimensions(
 }
 
 export function generateSafeFilename(originalFilename: string): string {
+  // Validate input
+  if (!originalFilename || typeof originalFilename !== 'string' || originalFilename.trim() === '') {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 8);
+    return `photo_${timestamp}_${randomString}.jpg`;
+  }
+
+  const cleanFilename = originalFilename.trim();
   const timestamp = Date.now();
   const randomString = Math.random().toString(36).substring(2, 8);
   
-  // Extract file extension
-  const extension = originalFilename.split('.').pop()?.toLowerCase() || 'jpg';
+  // Extract file extension safely
+  const lastDotIndex = cleanFilename.lastIndexOf('.');
+  let extension = 'jpg'; // default extension
+  let nameWithoutExt = cleanFilename;
   
-  // Remove special characters and spaces, keep only alphanumeric and hyphens
-  const safeName = originalFilename
-    .replace(/\.[^/.]+$/, '') // Remove extension
-    .replace(/[^a-zA-Z0-9-_]/g, '_') // Replace special chars with underscore
+  if (lastDotIndex > 0 && lastDotIndex < cleanFilename.length - 1) {
+    extension = cleanFilename.substring(lastDotIndex + 1).toLowerCase();
+    nameWithoutExt = cleanFilename.substring(0, lastDotIndex);
+  }
+  
+  // Validate extension
+  if (!extension || extension.length === 0) {
+    extension = 'jpg';
+  }
+  
+  // Clean the filename (remove extension first)
+  let safeName = nameWithoutExt
+    .replace(/[^a-zA-Z0-9-_\s]/g, '_') // Replace special chars with underscore
+    .replace(/\s+/g, '_') // Replace spaces with underscores
     .replace(/_+/g, '_') // Replace multiple underscores with single
     .replace(/^_|_$/g, '') // Remove leading/trailing underscores
     .substring(0, 50); // Limit length
   
-  return `${timestamp}_${randomString}_${safeName}.${extension}`;
+  // Ensure we have a valid name
+  if (!safeName || safeName.length === 0) {
+    safeName = 'photo';
+  }
+  
+  // Validate timestamp and randomString
+  const validTimestamp = isNaN(timestamp) ? Date.now() : timestamp;
+  const validRandomString = randomString && randomString.length > 0 ? randomString : Math.random().toString(36).substring(2, 8);
+  
+  return `${validTimestamp}_${validRandomString}_${safeName}.${extension}`;
 }
 
 // Helper function to check if file is RAW format
