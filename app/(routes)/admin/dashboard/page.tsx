@@ -14,6 +14,7 @@ import { PhotoGallery } from '@/app/components/admin/photo-gallery';
 import { AdminNav } from '@/app/components/admin/admin-nav';
 import { CachedDashboardStats } from '@/app/components/admin/cached-dashboard-stats';
 import { useCachedRecentEvents } from '@/app/lib/hooks/use-cached-data';
+import { RLSEmergencyFix } from '@/app/components/admin/rls-emergency-fix';
 
 export default function Dashboard() {
   // Use cached recent events with React Query
@@ -30,10 +31,13 @@ export default function Dashboard() {
         <p className="text-gray-600 mt-1">Welcome to your photo studio management panel</p>
       </div>
 
-      {/* Stats Grid - Using cached data */}
+            {/* Stats Grid - Using cached data */}
       <CachedDashboardStats />
 
-              {/* Free Photo Upload */}
+      {/* RLS Emergency Fix - Show prominently if there are upload issues */}
+      <RLSEmergencyFix />
+
+      {/* Free Photo Upload */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
@@ -149,6 +153,30 @@ export default function Dashboard() {
                   <Clock className="w-4 h-4 mr-3" />
                   Review Pending Photos
                 </Link>
+              </Button>
+              
+              <Button variant="outline" className="w-full justify-start" asChild>
+                <Link href="/debug/auth">
+                  <Clock className="w-4 h-4 mr-3" />
+                  Debug Auth & RLS
+                </Link>
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/test-auth');
+                    const result = await response.json();
+                    alert(JSON.stringify(result, null, 2));
+                  } catch (error) {
+                    alert('Test failed: ' + error);
+                  }
+                }}
+              >
+                <Clock className="w-4 h-4 mr-3" />
+                Test Auth & Upload
               </Button>
             </div>
           </div>
